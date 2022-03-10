@@ -1,0 +1,9 @@
+{
+"username": "postgres",
+"password": "root",
+"database": "megilla_dev",
+"host": "127.0.0.1",
+"port": 5432,
+"type": "postgres",
+"entities": ["dist/**/*.entity{.ts,.js}"]
+}
