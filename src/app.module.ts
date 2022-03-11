@@ -13,9 +13,11 @@ import { OrganizationModule } from "./modules/organization/organization.module";
 import { OrganizationRepository } from "./modules/organization/organization.repository";
 import { UploadImagesModule } from "./modules/upload-images/upload-images.module";
 import { UserRepository } from "./modules/users/user.repository";
+import {ConfigModule} from "@nestjs/config"
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "public"),
     }),

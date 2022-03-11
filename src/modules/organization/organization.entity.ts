@@ -30,8 +30,8 @@ export class Organization extends BaseEntity {
   @Column({ length: 255, name: "picture_url" })
   pictureUrl: string;
 
-  @Column({ length: 255, name: "long_description", nullable: true })
-  longDescription: string;
+  // @Column({ length: 255, name: "long_description", nullable: true })
+  // longDescription: string;
 
   @CreateDateColumn({ type: "timestamp", name: "created_at", default: () => "now()", select: false })
   createdAt: Date;

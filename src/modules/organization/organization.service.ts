@@ -123,7 +123,7 @@ export class OrganizationService {
   }
   async updateSettings(settingsDto: any) {
     const organization = await this.organizationRepository.findOne({ id: settingsDto.organizationId });
-    organization.longDescription = settingsDto.longDescription;
+    // organization.longDescription = settingsDto.longDescription;
     organization.internalDescription = settingsDto.internalDescription;
     organization.pictureUrl = settingsDto.pictureUrl;
     return await organization.save();

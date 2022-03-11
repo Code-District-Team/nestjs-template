@@ -1,3 +1,5 @@
+import { ConfigModule } from "@nestjs/config";
+ConfigModule.forRoot()
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { RequestContextMiddleware } from "./middlewares/requestContext.middleware";
@@ -14,6 +16,6 @@ async function bootstrap() {
   app.enableCors();
   app.setGlobalPrefix("api");
   app.use(RequestContextMiddleware);
-  await app.listen(8088);
+  await app.listen(process.env.BACKEND_PORT);
 }
 bootstrap();
