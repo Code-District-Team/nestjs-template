@@ -1,4 +1,6 @@
-import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import { stringValueMaxLength1000 } from "aws-sdk/clients/finspacedata";
+import { IsEmail, IsNotEmpty, IsString, MaxLength, IsOptional, ValidateIf } from "class-validator";
+import { mailSubjects } from "src/modules/auth/constants";
 
 export class UserDto {
   @IsString()
@@ -16,13 +18,8 @@ export class UserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   @MaxLength(100)
   password: string;
-
-  @IsString()
-  @IsNotEmpty()
-  domainPrefix: string;
 }
 export class LoginDto {
   @IsString()
@@ -33,7 +30,6 @@ export class LoginDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   @MaxLength(100)
   password: string;
 }
@@ -46,35 +42,18 @@ export class UserProfileDto {
   @IsNotEmpty()
   lastName: string;
 
-  @IsString()
-  @IsEmail()
-  @IsNotEmpty()
+  pictureUrl: string;
+
   email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  bio: string;
-
-  @IsString()
-  @IsNotEmpty()
-  country: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-
-  profilePicture: string;
 }
 export class ChangePasswordDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   @MaxLength(100)
   oldPassword: string;
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   @MaxLength(100)
   newPassword: string;
 }
@@ -88,7 +67,61 @@ export class ForgetPasswordDto {
 export class ResetPasswordDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   @MaxLength(100)
   password: string;
+}
+export class ContactUsDto {
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  subject: string;
+
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+
+  @ValidateIf((o) => o.subject === mailSubjects.CONTACT_US_EDUCATION)
+  @IsString()
+  @IsNotEmpty()
+  school: string;
+
+  @ValidateIf((o) => o.subject === mailSubjects.CONTACT_US_BUSINESS || o.subject === mailSubjects.CONTACT_US_EDUCATION)
+  @IsString()
+  location: string;
+
+  @ValidateIf((o) => o.subject === mailSubjects.CONTACT_US_BUSINESS)
+  @IsString()
+  title: string;
+
+  @ValidateIf((o) => o.subject === mailSubjects.CONTACT_US_BUSINESS)
+  @IsString()
+  sizeOfOrganization: string;
+
+  @ValidateIf((o) => o.subject === mailSubjects.CONTACT_US_BUSINESS)
+  @IsString()
+  numberOfNamePlayerUsers: string;
+
+  @ValidateIf((o) => o.subject === mailSubjects.CONTACT_US_BUSINESS)
+  @IsString()
+  @IsNotEmpty()
+  organization?: string;
+}
+
+export class BlockUser {
+  @IsNotEmpty()
+  id: number;
+
+  @IsNotEmpty()
+  isBlocked: boolean;
 }

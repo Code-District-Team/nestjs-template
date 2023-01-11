@@ -9,7 +9,7 @@ export class superAdmin1619602616800 implements MigrationInterface {
         salt: "$2b$10$SVJEvjT20DqcwEbscfL1m.",
         firstName: "Super",
         lastName: "Admin 1",
-        type: "SuperAdmin",
+        role: "ADMIN",
         created_at: `${new Date()}`,
         updated_at: `${new Date()}`,
       },

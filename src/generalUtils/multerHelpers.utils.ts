@@ -1,15 +1,8 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
 import * as fs from "fs";
 import { extname } from "path";
-import { Organization } from "src/modules/organization/organization.entity";
 import { v4 as uuidv4 } from "uuid";
 
-export const imageFileFilter = (req, file, callback) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-    return callback(new Error("Only image files are allowed!"), false);
-  }
-  callback(null, true);
-};
 
 export const videoFileFilter = (req, file, callback) => {
   if (!file.originalname.match(/\.(mp4|mov|m4v|flv|webm)$/)) {
@@ -23,36 +16,37 @@ export const editFileName = (req, file, callback) => {
   // const name = file.originalname.split(".")[0]
   const name = uuidv4();
   const fileExtName = extname(file.originalname);
-  // const randomName = Array(4)
-  //   .fill(null)
-  //   .map(() => Math.round(Math.random() * 16).toString(16))
-  //   .join("");
-  // callback(null, `${name}-${randomName}${fileExtName}`);
+
   callback(null, `${name}${fileExtName}`);
 };
 
-export const createDestinationPath = (req, file, callback) => {
-  const orgName = "./uploads/" + req.user.organization.id;
 
-  if (!fs.existsSync(orgName)) {
-    fs.mkdirSync(orgName);
+export const createAudioDestinationPath = async (req, file, callback) => {
+let videoPath
+      videoPath = "./uploads/videos/"
+  if (!fs.existsSync(videoPath)) {
+    fs.mkdirSync(videoPath);
   }
-  callback(null, orgName);
+  callback(null, videoPath);
 };
 
-export const createVideoDestinationPath = async (req, file, callback) => {
-  const organizationData = await Organization.findOne({ domainPrefix: req.headers.host.split(".")[0] });
-  if (!organizationData) {
-    callback(new HttpException("Invalid Domain Prefix", HttpStatus.BAD_REQUEST), null);
-    return;
+export const createAudioDestinationPaths3 = async (req, file, callback) => {
+  const name = uuidv4();
+  let fileExtName = extname(file.originalname);
+  if(!fileExtName){
+    fileExtName = file.mimetype.split("/")[1] == "x-matroska" ? ".mkv" : "."+ file.mimetype.split("/")[1]
   }
-  const orgPath = "./uploads/" + organizationData.id;
-  const orgName = "./uploads/" + organizationData.id + "/question" + req.params.questionId;
-  if (!fs.existsSync(orgPath)) {
-    fs.mkdirSync(orgPath);
-  }
-  if (!fs.existsSync(orgName)) {
-    fs.mkdirSync(orgName);
-  }
-  callback(null, orgName);
-};
+  let fileName = `${name}${fileExtName}`
+  let videoPath
+        videoPath = "uploads/" + req?.user?.id + "/audios/" + fileName
+    callback(null, videoPath);
+  };
+
+  export const createImageDestinationPaths3 = async (req, file, callback) => {
+    const name = uuidv4();
+    let fileExtName = extname(file.originalname);
+    let fileName = `${name}${fileExtName}`
+    let videoPath
+          videoPath = "uploads/" + req?.user?.id + "/images/" + fileName
+      callback(null, videoPath);
+    };

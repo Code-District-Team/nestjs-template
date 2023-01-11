@@ -16,7 +16,6 @@ export class user1618209802133 implements MigrationInterface {
           {
             name: "email",
             type: "varchar",
-            isUnique: true,
             isNullable: false,
           },
           {
@@ -40,33 +39,8 @@ export class user1618209802133 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: "type",
+            name: "role",
             type: "varchar",
-            isNullable: true,
-          },
-          {
-            name: "bio",
-            type: "varchar",
-            isNullable: true,
-          },
-          {
-            name: "country",
-            type: "varchar",
-            isNullable: true,
-          },
-          {
-            name: "profile_picture",
-            type: "varchar",
-            isNullable: true,
-          },
-          {
-            name: "address",
-            type: "varchar",
-            isNullable: true,
-          },
-          {
-            name: "organization_id",
-            type: "int4",
             isNullable: true,
           },
           {
@@ -77,6 +51,16 @@ export class user1618209802133 implements MigrationInterface {
           {
             name: "expires",
             type: "int4",
+            isNullable: true,
+          },
+          {
+            name: "stripe_customer_id",
+            type: "varchar",
+            isNullable: true,
+          },
+          {
+            name: "subscription_status",
+            type: "varchar",
             isNullable: true,
           },
           {
@@ -100,14 +84,6 @@ export class user1618209802133 implements MigrationInterface {
       }),
       false
     );
-    // await queryRunner.createForeignKey(
-    //   "user",
-    //   new TableForeignKey({
-    //     columnNames: ["organization_id"],
-    //     referencedTableName: "organization",
-    //     referencedColumnNames: ["id"],
-    //   })
-    // );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

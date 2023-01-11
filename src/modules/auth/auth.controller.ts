@@ -1,7 +1,14 @@
-import { Body, Controller, Param, Post, Req, UseGuards, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, UseGuards, ValidationPipe } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { IsSuperAdmin } from "src/guards/isSuperAdmin.guard";
-import { ChangePasswordDto, ForgetPasswordDto, LoginDto, ResetPasswordDto, UserDto } from "../users/dto/user.dto";
+import {
+  ChangePasswordDto,
+  ForgetPasswordDto,
+  LoginDto,
+  ResetPasswordDto,
+  UserDto,
+  ContactUsDto,
+} from "../users/dto/user.dto";
 import { AuthService } from "./auth.service";
 import { LoginAsDto } from "./dto/auth.dto";
 
@@ -19,6 +26,12 @@ export class AuthController {
     return this.authService.signIn(userDto);
   }
 
+  @UseGuards(AuthGuard())
+  @Get("/refresh-user")
+  refreshToken(@Req() req): Promise<object> {
+    return this.authService.refreshUser(req.user.email);
+  }
+
   @Post("/change-password")
   @UseGuards(AuthGuard())
   async changePassword(@Body(ValidationPipe) userDto: ChangePasswordDto, @Req() req): Promise<{ message: string }> {
@@ -29,8 +42,7 @@ export class AuthController {
   @Post("/test")
   @UseGuards(AuthGuard())
   test(@Req() req) {
-    console.log(req.user);
-    console.log(req.body);
+    return req.user;
   }
 
   @Post("/forget-password")
@@ -47,12 +59,17 @@ export class AuthController {
     const status = await this.authService.resetPassword(resetPasswordDto.password, param.token);
     return { message: status };
   }
-
-  @UseGuards(IsSuperAdmin)
-  @UseGuards(AuthGuard())
-  @Post("/login-as/:orgId")
-  loginAs(@Param(ValidationPipe) param: LoginAsDto) {
-    const { orgId } = param;
-    return this.authService.loginAs(orgId);
+  @Post("/contact-us")
+  async contactUs(@Body(ValidationPipe) contactUsDto: ContactUsDto): Promise<{ message: any }> {
+    const status = await this.authService.contactUs(contactUsDto);
+    return { message: status };
   }
+
+  // @UseGuards(IsSuperAdmin)
+  // @UseGuards(AuthGuard())
+  // @Post("/login-as/:orgId")
+  // loginAs(@Param(ValidationPipe) param: LoginAsDto) {
+  //   const { orgId } = param;
+  //   return this.authService.loginAs(orgId);
+  // }
 }

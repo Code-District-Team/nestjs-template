@@ -1,5 +1,5 @@
 import { ConfigModule } from "@nestjs/config";
-ConfigModule.forRoot()
+ConfigModule.forRoot();
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { RequestContextMiddleware } from "./middlewares/requestContext.middleware";

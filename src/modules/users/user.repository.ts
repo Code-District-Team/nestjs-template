@@ -1,32 +1,15 @@
-import { ConflictException, HttpException, HttpStatus, InternalServerErrorException } from "@nestjs/common";
+import { HttpException, HttpStatus, InternalServerErrorException } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
-import { constants } from "../auth/constants";
 import { EntityRepository, Repository } from "typeorm";
+import { v4 } from "uuid";
+import { constants } from "../auth/constants";
 import { LoginDto, UserDto } from "./dto/user.dto";
-import { User } from "./users.entity";
+import { User } from "./entities/users.entity";
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async createOrganizationUser(userDto: UserDto, userOrganization): Promise<any> {
+  async signUp(userDto: UserDto): Promise<any> {
     const { firstName, lastName, email, password } = userDto;
-
-    const user = new User();
-    user.firstName = firstName;
-    user.lastName = lastName;
-    user.email = email;
-    user.salt = await bcrypt.genSalt();
-    user.password = await this.hashPassword(password, user.salt);
-    user.organizationId = userOrganization.id;
-    user.type = constants.OrgUserTypeName;
-
-    await user.save();
-    return this.findOne({ email: user.email }, { loadEagerRelations: false });
-  }
-  async getOrgUserByOrgId(orgId: number) {
-    return await this.findOne({ organizationId: orgId, type: constants.OrgUserTypeName });
-  }
-  async signUp(userDto: UserDto, userOrganization): Promise<any> {
-    const { firstName, lastName, email, password, domainPrefix } = userDto;
 
     const salt = await bcrypt.genSalt();
 
@@ -41,11 +24,12 @@ export class UserRepository extends Repository<User> {
     user.email = email;
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
-    user.organizationId = userOrganization.id;
-    try {
-      await user.save();
+    user.role = constants.user;
+    user.uuid = v4();
 
-      return "Success";
+    try {
+      const userRes = await user.save();
+      return await this.findOne({ id: userRes.id });
     } catch (error) {
       if (error.code === "23505") {
         throw new HttpException("Email Already exists", HttpStatus.BAD_REQUEST);
@@ -62,7 +46,23 @@ export class UserRepository extends Repository<User> {
     const { email, password } = userDto;
     const user = await this.findOne(
       { email },
-      { relations: ["organization"], select: ["id", "email", "password", "salt", "firstName", "lastName", "type"] }
+      {
+        // relations: ["organization"],
+        select: [
+          "id",
+          "email",
+          "password",
+          "salt",
+          "firstName",
+          "lastName",
+          "role",
+          "subscriptionStatus",
+          "uuid",
+          "planId",
+          "pictureUrl",
+        ],
+        relations: ["plans"],
+      }
     );
 
     if (user && (await user.validatePassword(password))) {
@@ -79,7 +79,7 @@ export class UserRepository extends Repository<User> {
   async changePasswordUser(oldPassword, newPassword, user: any): Promise<string> {
     const dbUser = await this.findOne(
       { id: user.id },
-      { select: ["id", "email", "password", "salt", "firstName", "lastName", "type"] }
+      { select: ["id", "email", "password", "salt", "firstName", "lastName", "role"] }
     );
     if (dbUser && (await bcrypt.compare(oldPassword, dbUser.password))) {
       newPassword = await this.hashPassword(newPassword, dbUser.salt);
@@ -87,7 +87,7 @@ export class UserRepository extends Repository<User> {
       await dbUser.save();
       return "success";
     } else {
-      return "Invalid User Credentials";
+      throw new HttpException("Invalid User Credentials", HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -98,7 +98,7 @@ export class UserRepository extends Repository<User> {
     ////set token to null
     const dbUser = await this.findOne(
       { forgetPasswordToken: token },
-      { select: ["id", "email", "password", "salt", "firstName", "lastName", "type", "forgetPasswordToken", "expires"] }
+      { select: ["id", "email", "password", "salt", "firstName", "lastName", "role", "forgetPasswordToken", "expires"] }
     );
     if (dbUser) {
       password = await this.hashPassword(password, dbUser.salt);
@@ -108,7 +108,7 @@ export class UserRepository extends Repository<User> {
       await dbUser.save();
       return "success";
     } else {
-      return "Invalid Token (User not found)";
+      throw new HttpException("Invalid Token (User not found)", HttpStatus.BAD_REQUEST);
     }
   }
 }
