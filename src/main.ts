@@ -1,21 +1,11 @@
-import { ConfigModule } from "@nestjs/config";
-ConfigModule.forRoot();
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { RequestContextMiddleware } from "./middlewares/requestContext.middleware";
-import { patchSelectQueryBuilder } from "./typeormGlobalScopes/patch-select-query-builder";
+import { ConfigModule } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  patchSelectQueryBuilder();
   const app = await NestFactory.create(AppModule);
-
-  app.use(function (req, res, next) {
-    res.locals.session = req.session;
-    next();
-  });
+  const port = +process.env.BACKEND_PORT;
   app.enableCors();
-  app.setGlobalPrefix("api");
-  app.use(RequestContextMiddleware);
-  await app.listen(process.env.BACKEND_PORT);
+  await app.listen(port);
 }
 bootstrap();

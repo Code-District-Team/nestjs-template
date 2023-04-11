@@ -1,19 +1,14 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { InjectRepository } from "@nestjs/typeorm";
-// import { Strategy } from "passport";
-import { ExtractJwt, Strategy } from "passport-jwt";
-import { UserRepository } from "../users/user.repository";
-import { User } from "../users/entities/users.entity";
-import { jwtConstants, STRIPE_STATUSES } from "./constants";
-import { jwtPayload } from "./jwt-payload.interface";
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { jwtConstants } from 'src/generalUtils/constant';
+import { jwtPayload } from './jwt-payload.interface';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    @InjectRepository(UserRepository)
-    private userRepository: UserRepository
-  ) {
+  constructor(private userSerivce: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -23,9 +18,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: jwtPayload): Promise<User> {
     const { email } = payload;
-    const user = await this.userRepository.findOne({ email }, {relations: ["plans"]});
+
+    const user = await this.userSerivce.getUserByEmail(email);
+
     if (!user) {
-      throw new UnauthorizedException("You are not authorized to perform the operation");
+      throw new UnauthorizedException(
+        'You are not authorized to perform the operation',
+      );
     }
     return user;
   }

@@ -1,26 +1,26 @@
-import { MailerModule } from "@nestjs-modules/mailer";
-import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
-import { Module } from "@nestjs/common";
-import envConfig from "src/config/env.config";
-import { MailService } from "./mail.service";
-
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { Module } from '@nestjs/common';
+import { MailService } from './mail.service';
+require('dotenv').config()
 @Module({
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: "smtp.sendgrid.net",
-        secure: false,
-        port: 587,
+        host: 'smtp.sendgrid.net',
+        secure: true,
+        port: 465,
+
         auth: {
-          user: "apikey",
-          pass: envConfig.smtpKey,
+          user: process.env.SMTP_KEY,
+          pass: process.env.SMTP_PASSWORD,
         },
       },
       defaults: {
-        from: `Forgot Password Request <${envConfig.smtpEmail}>`,
+        from: `Forgot Password Request <${process.env.SMTP_EMAIL}>`,
       },
       template: {
-        dir: process.cwd() + "/templates/",
+        dir: process.cwd() + '/templates/',
         adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
         options: {
           strict: true,

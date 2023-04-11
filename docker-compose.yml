@@ -1,0 +1,42 @@
+version: '3.6'
+services:
+  api:
+    build:
+      context: '.'
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    volumes:
+      - .:/usr/src/app
+      - /app/node_modules
+    restart: always
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_HOST: ${BACKEND_HOST}
+      NODE_ENV: ${NODE_ENV}
+      FRONTEND_URL: ${FRONTEND_URL}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SMTP_EMAIL: ${SMTP_EMAIL}
+      SMTP_KEY: ${SMTP_KEY}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+
+  postgres:
+    image: postgres
+    ports:
+      - '5433:5433'
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    command: -p 5433
+  # static volumes that are used when you re create docker
+  # helps to presist data from database
+volumes:
+  postgresdata:

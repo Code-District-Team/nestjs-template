@@ -1,14 +1,27 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { AuthModule } from "../auth/auth.module";
-import { UserRepository } from "./user.repository";
-import { UsersController } from "./users.controller";
-import { UsersService } from "./users.service";
+import { Module } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from '../auth/jwt.strategy';
+import { jwtConstants } from 'src/generalUtils/constant';
+import { MailModule } from "../mail/mail.module";
+
+
+import { User } from './entities/user.entity';
+import { Role } from '../roles/entities/role.entity';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([UserRepository])],
+  imports: [
+    TypeOrmModule.forFeature([User, Role]),
+    MailModule,
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: jwtConstants.time },
+    }),
+  ],
+  providers: [UsersService, JwtStrategy],
   controllers: [UsersController],
-  providers: [UsersService],
   exports: [UsersService],
 })
 export class UsersModule {}

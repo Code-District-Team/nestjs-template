@@ -1,29 +1,22 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { ServeStaticModule } from "@nestjs/serve-static/dist/serve-static.module";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { join } from "path";
-import seedConfig from "./config/seed.config";
-import typeOrmConfig from "./config/typeorm.config";
-import { AuthModule } from "./modules/auth/auth.module";
-import { MailModule } from "./modules/mail/mail.module";
-import { UserRepository } from "./modules/users/user.repository";
-import { UsersModule } from "./modules/users/users.module";
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { dataSourceOptions } from './config/typeorm.config';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { seedSourceOptions } from './config/seed.config';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "public"),
-    }),
-    TypeOrmModule.forRoot(typeOrmConfig),
-    TypeOrmModule.forRoot(seedConfig),
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRoot(seedSourceOptions),
+    UsersModule,
     AuthModule,
     MailModule,
-
-    UsersModule,
   ],
-  controllers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
