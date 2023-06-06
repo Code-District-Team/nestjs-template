@@ -13,7 +13,8 @@ import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
 import { LoginDto } from './dto/loginUser.dto';
 import { jwtPayload } from './jwt-payload.interface';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
+
 import { User } from '../users/entities/user.entity';
 
 @Injectable()

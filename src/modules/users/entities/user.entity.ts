@@ -49,8 +49,9 @@ export class User {
     select: false,
   })
   forgetPasswordToken: string;
-  @Column({ name: 'expires', nullable: true, select: false })
-  expires: number;
+
+  @Column({ name: 'forget_password_token_expires', nullable: true, select: false })
+  forgetPasswordTokenExpires: number;
 
   @CreateDateColumn({
     type: 'timestamp',
