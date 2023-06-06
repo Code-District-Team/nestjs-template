@@ -74,7 +74,7 @@ export class createUserTable1679981873792 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'expires',
+            name: 'forget_password_token_expires',
             type: 'int4',
             isNullable: true,
           },

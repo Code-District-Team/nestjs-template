@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { EditUserDto } from './dto/editUser.dto';
 
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as moment from 'moment';
 import { v4 } from 'uuid';
 import { User } from './entities/user.entity';
@@ -235,20 +235,30 @@ export class UsersService {
     const dbUser = await this.userRepository.findOneBy({ email });
     if (!dbUser) throw new NotFoundException('Email doest not Exists');
     dbUser.forgetPasswordToken = v4();
-    dbUser.expires = moment().add(10, 'minutes').unix();
+    dbUser.forgetPasswordTokenExpires = moment().add(10, 'minutes').unix();
     await this.userRepository.save(dbUser);
     return dbUser;
   }
 
   async resetPassword(token, password) {
-    const dbUser = await this.userRepository.findOneBy({
-      forgetPasswordToken: token,
+    const dbUser = await this.userRepository.findOne({
+      where: {
+        forgetPasswordToken: token
+      },
+      select: [
+        'id',
+        'forgetPasswordToken',
+        'forgetPasswordTokenExpires',
+        'password',
+      ]
     });
     if (dbUser) {
+      if(moment().unix() > dbUser.forgetPasswordTokenExpires) 
+        throw new HttpException('Token expired', HttpStatus.FORBIDDEN);
       password = await this.hashPassword(password);
       dbUser.password = password;
       dbUser.forgetPasswordToken = null;
-      dbUser.expires = null;
+      dbUser.forgetPasswordTokenExpires = null;
       await this.userRepository.save(dbUser);
       return 'success';
     } else {

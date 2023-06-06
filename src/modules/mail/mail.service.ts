@@ -11,7 +11,7 @@ export class MailService {
     try {
       const newToken = await this.mailerService.sendMail({
         to: user.email,
-        from: `Capital Good Fund Password Reset <${process.env.SMTP_EMAIL}>`, // override default from
+        from: `Code District Password Reset <${process.env.SMTP_EMAIL}>`, // override default from
         subject: 'Password Reset Request',
         html: `
       <!doctype html>
@@ -38,6 +38,7 @@ export class MailService {
                   margin: auto;
                   background: #fff;
                   text-align: center;
+                  padding-top:15px;
               }
               .email-content {
                   max-width: 350px;
@@ -46,15 +47,16 @@ export class MailService {
               }
               .email-content h3 {
                   font-weight: 500;
-                  font-size: 44px;
+                  font-size: 36px;
                   color: #363636;
                   text-align: center;
-                  margin-top: 2rem;
+                  margin-top: 0;
                   margin-bottom: 1rem;
               }
               .email-content p {
                   color: #363636;
-                  text-align: center;
+                  text-align: left;
+                  margin-bottom:10px;
               }
               .reset-password-btn {
                   padding: 13px 38px;
@@ -70,23 +72,33 @@ export class MailService {
               }
               .email-template-footer {
                   background: #ECECEC;
-                  padding: 32px;
+                  padding: 15px;
                   text-align: center;
               }
       
           </style>
       </head>
-      <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
+      <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px;padding-top:20px; background-color: #f2f3f8;" leftmargin="0">
           <div class="email-template-wrap">
-             <div class="email-content">my
+             <div class="email-content">
                   <h3>Password Reset</h3>
-                  <p>Seems like you forgot your password for Insta Pronounce. If this is true, click below to reset your password.</p>
+                  <p>
+                    Hi ${user.firstName ?? ''},
+                    </p>
+                    <p>There was a request to change your password!<br>
+                  </p>
+                  <p>
+                  If you did not make this request then please ignore this email.a
+                  </p>
+                  <p>
+                  Otherwise, click below to reset your password.
+                  </p>
                   <a class="reset-password-btn" style="color:#FFF;" href="http://${
                     process.env.FRONTEND_URL
                   }/set-password/?token=${token}" target="_blank">Reset my Password</a>
              </div>
              <div class="email-template-footer">
-                  Copyright © ${new Date().getFullYear()}  Instapronounce
+                  Copyright © ${new Date().getFullYear()}  CodeDistrict
              </div>
           </div>
       </body>
@@ -105,7 +117,7 @@ export class MailService {
     try {
       const newToken = await this.mailerService.sendMail({
         to: user.email,
-        from: `Capital Good Fund Password Reset <${process.env.SMTP_EMAIL}>`,
+        from: `Code District Password Reset <${process.env.SMTP_EMAIL}>`,
         subject: 'User Invite',
         html: `
       <!doctype html>
@@ -183,7 +195,7 @@ export class MailService {
         }/?token=${token}" target="_blank">User Invite</a>
              </div>
              <div class="email-template-footer">
-                  Copyright © ${new Date().getFullYear()}  Instapronounce
+                  Copyright © ${new Date().getFullYear()}  CodeDistrict
              </div>
           </div>
       </body>
