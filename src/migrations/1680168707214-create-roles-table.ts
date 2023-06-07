@@ -17,10 +17,8 @@ export class createRolesTable1680168707214 implements MigrationInterface {
           },
           {
             name: 'name',
-            type: 'enum',
-            enum: [RoleEnum.CLIENT,RoleEnum.BUSINESSPARTNER,RoleEnum.ADMIN],
-            enumName: 'RoleEnum',
-            default: `'CLIENT'`,
+            type: 'varchar',
+            default: 'USER',
           },
           {
             name: 'created_at',

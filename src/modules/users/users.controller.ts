@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -20,6 +21,7 @@ import { Role } from '../roles/entities/role.entity';
 import { EditContactDto } from './dto/editContactDetails.dto';
 import { EditUserDto } from './dto/editUser.dto';
 import { InviteUserDto } from './dto/inviteUser.dto';
+import { EditUserRoleDto } from './dto/editUserRole.dto';
 
 import { UsersService } from './users.service';
 
@@ -37,8 +39,15 @@ export class UsersController {
     }
   }
 
+  @Patch('/update-role')
+  @Roles(RoleEnum.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  updateRole(@Body() editRoleDto: EditUserRoleDto) {
+    return this.userService.updateUserRole(editRoleDto);
+  }
+
   @Post('/update-profile')
-  @Roles(RoleEnum.CLIENT)
+  @Roles(RoleEnum.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(CustomPipe)
   updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
@@ -49,7 +58,7 @@ export class UsersController {
   }
 
   @Post('/edit-contact-details')
-  @Roles(RoleEnum.CLIENT)
+  @Roles(RoleEnum.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   updateUserContact(
     @Req() request,
