@@ -19,11 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
-    "seed:create": "func() { npm run typeorm migration:create \"./src/seed/$1\"; }; func",
+    "seed:create": "node ./src/config/scripts/create-seeder.ts",
     "seed:run": "typeorm-ts-node-commonjs migration:run -d ./src/config/seed.config.ts",
     "seed:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/config/seed.config.ts",
+    "migration:create": "node ./src/config/scripts/create-migration.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/config/typeorm.config.ts",
-    "migration:create": "func() { npm run typeorm migration:create \"./src/migrations/$1\"; }; func",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/config/typeorm.config.ts"
   },
   "dependencies": {
@@ -37,7 +37,6 @@
     "@nestjs/serve-static": "^3.0.1",
     "@nestjs/swagger": "^6.2.1",
     "@nestjs/typeorm": "^9.0.1",
-    "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
