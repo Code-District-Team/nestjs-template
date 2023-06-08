@@ -22,6 +22,7 @@ import { RoleEnum } from 'src/common/enums/role.enum';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail/mail.service';
 import { StatusEnum } from '../../common/enums/status.enum';
+import { EditUserRoleDto } from './dto/editUserRole.dto';
 
 @Injectable()
 export class UsersService {
@@ -61,6 +62,27 @@ export class UsersService {
         `Error updating database ${err}`,
         HttpStatus.BAD_REQUEST,
       );
+    }
+  }
+
+  async updateUserRole(editRoleDto: EditUserRoleDto) {
+    const { email, roleId } = editRoleDto;
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const role = await this.roleRepository.findOneBy({ id: roleId });
+    if (!role) {
+      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
+    }
+
+    user.role = role;
+    try {
+      await this.userRepository.save(user);
+      return { message: 'Success' };
+    } catch (err) {
+      throw new HttpException(`Error: ${err}`, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -173,7 +195,7 @@ export class UsersService {
     if (!isPendingUser) {
       newUser.email = email;
       newUser.role = await this.roleRepository.findOneBy({
-        name: RoleEnum.CLIENT,
+        name: RoleEnum.USER,
       });
     }
     newUser.status = StatusEnum.ACTIVE;
@@ -243,17 +265,17 @@ export class UsersService {
   async resetPassword(token, password) {
     const dbUser = await this.userRepository.findOne({
       where: {
-        forgetPasswordToken: token
+        forgetPasswordToken: token,
       },
       select: [
         'id',
         'forgetPasswordToken',
         'forgetPasswordTokenExpires',
         'password',
-      ]
+      ],
     });
     if (dbUser) {
-      if(moment().unix() > dbUser.forgetPasswordTokenExpires) 
+      if (moment().unix() > dbUser.forgetPasswordTokenExpires)
         throw new HttpException('Token expired', HttpStatus.FORBIDDEN);
       password = await this.hashPassword(password);
       dbUser.password = password;
@@ -272,7 +294,7 @@ export class UsersService {
   async inviteUser(email, roleId): Promise<string> {
     const role = await this.roleRepository.findOneBy({ id: roleId });
     if (!role) {
-      throw new UnauthorizedException('Role Not Found');
+      throw new NotFoundException('Role Not Found');
     }
 
     const emailExists = await this.userRepository.findOneBy({ email });

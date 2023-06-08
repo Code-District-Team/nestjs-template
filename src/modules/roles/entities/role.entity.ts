@@ -15,10 +15,8 @@ export class Role {
   id: string;
 
   @Column({
-    type: 'enum',
-    enum: RoleEnum,
-    enumName: 'RoleEnum',
-    default: RoleEnum.CLIENT,
+    type: 'varchar',
+    default: RoleEnum.USER,
   })
   name: RoleEnum;
 
