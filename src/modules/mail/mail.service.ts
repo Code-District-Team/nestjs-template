@@ -186,13 +186,18 @@ export class MailService {
           <div class="email-template-wrap">
              <div class="email-content">
                   <h3>User Invite</h3>
+                  <p>
+                    Hi,
+                  </p>
+                    <p>You’ve been invited to join our portal<br>
+                  </p>
+                  <p>
+                  Click below to set up your account.
+                  </p>
                   <a class="reset-password-btn" style="color:#FFF;" href="http://${
                     process.env.FRONTEND_URL
-                  }/${
-          userRole == RoleEnum.BUSINESSPARTNER
-            ? 'business-partner-register'
-            : 'register'
-        }/?token=${token}" target="_blank">User Invite</a>
+                  }/register
+        /?token=${token}" target="_blank">Accept Invite</a>
              </div>
              <div class="email-template-footer">
                   Copyright © ${new Date().getFullYear()}  CodeDistrict
