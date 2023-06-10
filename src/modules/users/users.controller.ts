@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
   UsePipes,
@@ -22,6 +23,7 @@ import { EditContactDto } from './dto/editContactDetails.dto';
 import { EditUserDto } from './dto/editUser.dto';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
+import { GetUserRequestDto } from './dto/getUsers.dto';
 
 import { UsersService } from './users.service';
 
@@ -37,6 +39,12 @@ export class UsersController {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  @Get('/get-users')
+  @UseGuards(JwtAuthGuard)
+  getUsers(@Query() getUsersDto: GetUserRequestDto) {
+    return this.userService.getAllUsers(getUsersDto);
   }
 
   @Patch('/update-role')

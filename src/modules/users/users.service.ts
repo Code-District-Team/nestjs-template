@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import { v4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { LoginDto } from '../auth/dto/loginUser.dto';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { deleteObjProps, updateObjProps } from 'src/generalUtils/helper';
 import { EditContactDto } from './dto/editContactDetails.dto';
 import { Role } from '../roles/entities/role.entity';
@@ -100,9 +100,7 @@ export class UsersService {
   async getUserByEmail(email: string) {
     let user = await this.userRepository.findOne({
       where: { email },
-      relations: {
-        role: true,
-      },
+      relations: ['role'],
     });
 
     return user;
@@ -132,15 +130,45 @@ export class UsersService {
   }
 
   async getAllUsers(filters) {
-    let user = await this.userRepository.createQueryBuilder('user');
+    const { email, firstName, lastName, pageNumber, recordsPerPage } = filters;
 
-    if (filters.pageNumber && filters.recordsPerPage) {
-      filters.pageNumber -= 1;
-      let skip = +filters.pageNumber * +filters.recordsPerPage;
-      user = user.skip(skip).take(filters.recordsPerPage);
-    }
+    let resData;
 
-    return await user.orderBy('user.id', 'DESC').getMany();
+    let skip = +(pageNumber - 1) * +recordsPerPage;
+
+    const [data, total] = await this.userRepository.findAndCount({
+      order: {
+        id: 'DESC',
+      },
+      ...(pageNumber &&
+        recordsPerPage && {
+          skip: skip,
+          take: recordsPerPage,
+        }),
+      ...(firstName && {
+        where: {
+          firstName: ILike(`%${firstName}%`),
+        },
+      }),
+      ...(lastName && {
+        where: {
+          lastName: ILike(`%${lastName}%`),
+        },
+      }),
+      ...(email && {
+        where: {
+          email: ILike(`%${email}%`),
+        },
+      }),
+    });
+    resData = {
+      data,
+      total,
+    };
+    resData?.data?.map((user) => {
+      return user;
+    });
+    return resData;
   }
 
   async findAll(pageNumber, recordsPerPage) {
