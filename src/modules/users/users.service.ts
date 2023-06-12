@@ -346,11 +346,23 @@ export class UsersService {
   }
 
   async deleteUser(userId) {
-    const user = await this.userRepository.findOneBy({ id: userId });
-
     try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
       const res = await this.userRepository.softDelete({ id: userId });
-      return 'User deleted';
+      if (res.affected == 0) {
+        return {
+          message: 'User not found',
+        };
+      } else {
+        return {
+          message: 'User deleted',
+        };
+      }
     } catch (e) {
       throw new HttpException(e, HttpStatus.BAD_REQUEST);
     }

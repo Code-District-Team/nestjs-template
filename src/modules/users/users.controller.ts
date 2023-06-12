@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -24,6 +25,7 @@ import { EditUserDto } from './dto/editUser.dto';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
 import { GetUserRequestDto } from './dto/getUsers.dto';
+import { DeleteUserDto } from './dto/deleteUser.dto';
 
 import { UsersService } from './users.service';
 
@@ -73,6 +75,14 @@ export class UsersController {
     @Body(CustomPipe) editContactDto: EditContactDto,
   ) {
     return this.userService.updateContact(request.user, editContactDto);
+  }
+
+  @Delete('/delete-user')
+  @Roles(RoleEnum.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(ValidationPipe)
+  deleteUser(@Query('userId') userId: DeleteUserDto) {
+    return this.userService.deleteUser(userId);
   }
 
   @Post('/invite-user')
