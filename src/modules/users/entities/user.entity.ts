@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 
 import { Role } from '../../roles/entities/role.entity';
-import { Address } from './address.entity';
+
 // @Unique('my_personal_unique', ['username', 'email'])
 @Entity({ name: 'users' })
 export class User {
@@ -33,6 +33,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column()
+  address: string;
+
   @Column({ length: 12, name: 'work_phone', nullable: true, select: false })
   workPhone: string;
 
@@ -50,7 +53,11 @@ export class User {
   })
   forgetPasswordToken: string;
 
-  @Column({ name: 'forget_password_token_expires', nullable: true, select: false })
+  @Column({
+    name: 'forget_password_token_expires',
+    nullable: true,
+    select: false,
+  })
   forgetPasswordTokenExpires: number;
 
   @CreateDateColumn({
@@ -70,9 +77,6 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
-  @OneToMany(() => Address, (address) => address.user)
-  addresses: Address[];
-  
   @Column({
     type: 'enum',
     enum: StatusEnum,
@@ -80,5 +84,4 @@ export class User {
     default: StatusEnum.INACTIVE,
   })
   status: StatusEnum;
-
 }
