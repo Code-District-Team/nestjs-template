@@ -36,6 +36,9 @@ export class User {
   @Column()
   address: string;
 
+  @Column({ name: 'profile_image_url', nullable: true })
+  profileImageUrl: string;
+
   @Column({ length: 12, name: 'work_phone', nullable: true, select: false })
   workPhone: string;
 
