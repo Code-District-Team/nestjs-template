@@ -25,7 +25,6 @@ export class createUserTable1679981873792 implements MigrationInterface {
             type: 'varchar',
             isNullable: false,
           },
-
           {
             name: 'first_name',
             type: 'varchar',
@@ -33,6 +32,16 @@ export class createUserTable1679981873792 implements MigrationInterface {
           },
           {
             name: 'last_name',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'address',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'profile_image_url',
             type: 'varchar',
             isNullable: true,
           },
@@ -86,7 +95,7 @@ export class createUserTable1679981873792 implements MigrationInterface {
           {
             name: 'status',
             type: 'enum',
-            enum: [ StatusEnum.ACTIVE, StatusEnum.INACTIVE, StatusEnum.PENDING],
+            enum: [StatusEnum.ACTIVE, StatusEnum.INACTIVE, StatusEnum.PENDING],
             enumName: 'StatusEnum',
             default: `'INACTIVE'`,
           },
