@@ -23,6 +23,7 @@
     "seed:run": "typeorm-ts-node-commonjs migration:run -d ./src/config/seed.config.ts",
     "seed:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/config/seed.config.ts",
     "migration:create": "node ./src/config/scripts/create-migration.ts",
+    "migration:generate": "node ./src/config/scripts/generate-migration.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/config/typeorm.config.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/config/typeorm.config.ts"
   },
