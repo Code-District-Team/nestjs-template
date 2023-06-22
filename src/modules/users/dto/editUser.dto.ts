@@ -5,7 +5,7 @@ export class EditUserDto {
   @IsNotEmpty()
   id: string;
 
-  @ValidateIf((value) => (value.firstName ? true : false))
+  @IsNotEmpty()
   @IsString()
   firstName: string;
 
@@ -34,4 +34,7 @@ export class EditUserDto {
   })
   @IsNotEmpty()
   mobilePhone: string;
+
+  @IsString()
+  profileImageUrl: string;
 }

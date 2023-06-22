@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Patch,
   Post,
@@ -19,17 +17,18 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { CustomPipe } from 'src/pipe/customValidation.pipe';
 import { RoleEnum } from '../../common/enums/role.enum';
-import { Role } from '../roles/entities/role.entity';
-import { EditContactDto } from './dto/editContactDetails.dto';
 import { EditUserDto } from './dto/editUser.dto';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
 import { GetUserRequestDto } from './dto/getUsers.dto';
-import { DeleteUserDto } from './dto/deleteUser.dto';
+import { UserIdDto } from './dto/userId.dto';
 
 import { UsersService } from './users.service';
+import { createSignedLink } from 'src/generalUtils/aws-config';
 
-@Controller('users')
+const bucketName = process.env.AWS_BUCKET;
+
+@Controller('user')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
@@ -43,10 +42,41 @@ export class UsersController {
     }
   }
 
-  @Get('/get-users')
+  @Get('/get-all')
   @UseGuards(JwtAuthGuard)
   getUsers(@Query() getUsersDto: GetUserRequestDto) {
     return this.userService.getAllUsers(getUsersDto);
+  }
+
+  @Get('/me')
+  @Roles(RoleEnum.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  getUser(@Req() request) {
+    return this.userService.getUser(request.user.id);
+  }
+
+  @Get('/:id')
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  getUserById(@Param() param: UserIdDto) {
+    const { id } = param;
+    return this.userService.getUser(id);
+  }
+
+  @Get('/presignedUrl')
+  @UseGuards(JwtAuthGuard)
+  getPreSignedUrl() {
+    return createSignedLink(bucketName, 'Test Folder/test.txt', 'getObject');
+  }
+
+  @Get('/upload-picture')
+  @UseGuards(JwtAuthGuard)
+  getUploadPictureUrl(@Req() request, @Param() param) {
+    return createSignedLink(
+      bucketName,
+      `Test Folder/${request.user.id}/${param.fileName}`,
+      'putObject',
+    );
   }
 
   @Patch('/update-role')
@@ -57,31 +87,17 @@ export class UsersController {
   }
 
   @Post('/update-profile')
-  @Roles(RoleEnum.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @UsePipes(CustomPipe)
   updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
-    // if (request.user.type != constants.OrgUserTypeName)
-    //   throw new HttpException("Not a Org User", HttpStatus.BAD_REQUEST);'
-
     return this.userService.updateProfile(request.user, userProfileDto);
-  }
-
-  @Post('/edit-contact-details')
-  @Roles(RoleEnum.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  updateUserContact(
-    @Req() request,
-    @Body(CustomPipe) editContactDto: EditContactDto,
-  ) {
-    return this.userService.updateContact(request.user, editContactDto);
   }
 
   @Delete('/delete-user')
   @Roles(RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(ValidationPipe)
-  deleteUser(@Query('userId') userId: DeleteUserDto) {
+  deleteUser(@Query('userId') userId: UserIdDto) {
     return this.userService.deleteUser(userId);
   }
 
