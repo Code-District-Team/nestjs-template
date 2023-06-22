@@ -23,6 +23,9 @@ import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail/mail.service';
 import { StatusEnum } from '../../common/enums/status.enum';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
+import { createSignedLink } from 'src/generalUtils/aws-config';
+
+const bucketName = process.env.AWS_BUCKET;
 
 @Injectable()
 export class UsersService {
@@ -86,14 +89,18 @@ export class UsersService {
     }
   }
 
-  async updateContact(user: User, editContactDto: EditContactDto) {
-    return await this.UpdateUserData(user, editContactDto);
-  }
-
   async getUser(userId) {
     let user = await this.userRepository.findOneBy({ id: userId });
-    // delete user.organization;
-
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (user.profileImageUrl) {
+      user.profileImageUrl = await createSignedLink(
+        bucketName,
+        user.profileImageUrl,
+        'getObject',
+      );
+    }
     return user;
   }
 
