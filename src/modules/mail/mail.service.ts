@@ -88,7 +88,7 @@ export class MailService {
                     <p>There was a request to change your password!<br>
                   </p>
                   <p>
-                  If you did not make this request then please ignore this email.a
+                  If you did not make this request then please ignore this email.
                   </p>
                   <p>
                   Otherwise, click below to reset your password.

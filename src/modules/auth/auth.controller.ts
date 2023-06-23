@@ -52,7 +52,6 @@ export class AuthController {
   }
 
   @Post('/forget-password')
-  @UseGuards(JwtAuthGuard)
   async forgetPassword(
     @Body(ValidationPipe) forgetPasswordDto: ForgetPasswordDto,
   ): Promise<{ message: any }> {
@@ -63,7 +62,6 @@ export class AuthController {
   }
 
   @Post('/reset-password/:token')
-  @UseGuards(JwtAuthGuard)
   async resetPassword(
     @Body(ValidationPipe) resetPasswordDto: ResetPasswordDto,
     @Param() param,
