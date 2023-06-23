@@ -319,10 +319,7 @@ export class UsersService {
       await this.userRepository.save(dbUser);
       return 'success';
     } else {
-      throw new HttpException(
-        'Invalid Token (User not found)',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Invalid Token', HttpStatus.BAD_REQUEST);
     }
   }
 
