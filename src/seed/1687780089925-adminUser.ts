@@ -22,7 +22,6 @@ export class adminUser1687780089925 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // await queryRunner.manager.getRepository('users').findOneBy({email: 'saim.ashfaq+admin@codedistrict.com'}).
     const user = await queryRunner.manager
       .getRepository('users')
       .findOneBy({ email: 'saim.ashfaq+admin@codedistrict.com' });
