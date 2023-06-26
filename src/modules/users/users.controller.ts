@@ -80,7 +80,7 @@ export class UsersController {
   }
 
   @Patch('/update-role')
-  @Roles(RoleEnum.SUPER_ADMIN)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   updateRole(@Body() editRoleDto: EditUserRoleDto) {
     return this.userService.updateUserRole(editRoleDto);
@@ -94,7 +94,7 @@ export class UsersController {
   }
 
   @Delete('/delete-user')
-  @Roles(RoleEnum.SUPER_ADMIN)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(ValidationPipe)
   deleteUser(@Query('userId') userId: UserIdDto) {
