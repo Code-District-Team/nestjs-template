@@ -55,14 +55,6 @@ export class UsersController {
     return this.userService.getUser(request.user.id);
   }
 
-  @Get('/:id')
-  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getUserById(@Param() param: UserIdDto) {
-    const { id } = param;
-    return this.userService.getUser(id);
-  }
-
   @Get('/presignedUrl')
   @UseGuards(JwtAuthGuard)
   getPreSignedUrl() {
@@ -70,13 +62,22 @@ export class UsersController {
   }
 
   @Get('/upload-picture')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   getUploadPictureUrl(@Req() request, @Param() param) {
     return createSignedLink(
       bucketName,
-      `Test Folder/${request.user.id}/${param.fileName}`,
+      // `Test Folder/${request.user.id}/${param.fileName}`,
+      `Test Folder/${param.fileName}`,
       'putObject',
     );
+  }
+
+  @Get('/:id')
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  getUserById(@Param() param: UserIdDto) {
+    const { id } = param;
+    return this.userService.getUser(id);
   }
 
   @Patch('/update-role')

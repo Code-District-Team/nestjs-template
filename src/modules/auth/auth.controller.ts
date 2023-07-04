@@ -18,9 +18,6 @@ import { ChangePasswordDto } from './dto/changePassword.dto';
 import { LoginDto } from './dto/loginUser.dto';
 import { ForgetPasswordDto } from './dto/forgetPassword.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
-import { RoleEnum } from 'src/common/enums/role.enum';
-import { Roles } from 'src/decorators/roles.decorator';
-import { RolesGuard } from 'src/guards/roles.guard';
 
 @Controller('auth')
 export class AuthController {
