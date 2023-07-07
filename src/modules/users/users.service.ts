@@ -212,7 +212,7 @@ export class UsersService {
   }
 
   async signUp(userdto: CreateUserDto) {
-    const { firstName, lastName, email, password, phoneNumber } = userdto;
+    const { firstName, lastName, email, password, mobilePhone } = userdto;
     const user = await this.userRepository.findOneBy({ email });
 
     const isPendingUser = user && user.status === StatusEnum.PENDING;
@@ -226,7 +226,7 @@ export class UsersService {
     newUser.firstName = firstName;
     newUser.lastName = lastName;
     newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync());
-    newUser.mobilePhone = phoneNumber;
+    newUser.mobilePhone = mobilePhone;
     if (!isPendingUser) {
       newUser.email = email;
       newUser.role = await this.roleRepository.findOneBy({
