@@ -28,7 +28,7 @@ export class CreateUserDto {
   @Matches('^[+]([0-9]{1})([0-9]{10})$', '', {
     message: 'Invalid Number Format',
   })
-  phoneNumber: string;
+  mobilePhone: string;
 
   @IsString()
   @IsNotEmpty()

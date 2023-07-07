@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -25,6 +26,7 @@ import { UserIdDto } from './dto/userId.dto';
 
 import { UsersService } from './users.service';
 import { createSignedLink } from 'src/generalUtils/aws-config';
+import { PutBucketAccelerateConfigurationCommand } from '@aws-sdk/client-s3';
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -55,6 +57,22 @@ export class UsersController {
     return this.userService.getUser(request.user.id);
   }
 
+  @Get('/upload-picture')
+  getUploadPictureUrl(@Req() request, @Param() param) {
+    return createSignedLink(
+      bucketName,
+      `Test Folder/${param.fileName}`,
+      'putObject',
+    );
+  }
+
+  @Put('/update-profile')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(CustomPipe)
+  updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
+    return this.userService.updateProfile(request.user, userProfileDto);
+  }
+
   @Get('/:id')
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -69,28 +87,11 @@ export class UsersController {
     return createSignedLink(bucketName, 'Test Folder/test.txt', 'getObject');
   }
 
-  @Get('/upload-picture')
-  @UseGuards(JwtAuthGuard)
-  getUploadPictureUrl(@Req() request, @Param() param) {
-    return createSignedLink(
-      bucketName,
-      `Test Folder/${request.user.id}/${param.fileName}`,
-      'putObject',
-    );
-  }
-
   @Patch('/update-role')
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   updateRole(@Body() editRoleDto: EditUserRoleDto) {
     return this.userService.updateUserRole(editRoleDto);
-  }
-
-  @Post('/update-profile')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(CustomPipe)
-  updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
-    return this.userService.updateProfile(request.user, userProfileDto);
   }
 
   @Delete('/delete-user')
