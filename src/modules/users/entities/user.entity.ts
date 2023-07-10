@@ -40,7 +40,7 @@ export class User {
   @Column({ name: 'profile_image_url', nullable: true })
   profileImageUrl: string;
 
-  @Column({ length: 12, name: 'work_phone', nullable: true, select: false })
+  @Column({ length: 12, name: 'work_phone', nullable: true })
   workPhone: string;
 
   @Column({ length: 12, name: 'home_phone', nullable: true, select: false })

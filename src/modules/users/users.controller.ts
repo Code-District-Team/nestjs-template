@@ -26,7 +26,6 @@ import { UserIdDto } from './dto/userId.dto';
 
 import { UsersService } from './users.service';
 import { createSignedLink } from 'src/generalUtils/aws-config';
-import { PutBucketAccelerateConfigurationCommand } from '@aws-sdk/client-s3';
 
 const bucketName = process.env.AWS_BUCKET;
 

@@ -48,14 +48,16 @@ export class UsersService {
       throw new HttpException('Invalid User', HttpStatus.BAD_REQUEST);
     }
 
-    updateObjProps(userData, userDto);
+    Object.keys(userDto).forEach((obj) => {
+      userData[obj] = userDto[obj];
+    });
 
     try {
       const updatedUser = await this.userRepository.save(userData);
-      const { password, ...upadtedUserWithoutPassword } = updatedUser;
+      const { password, ...updatedUserWithoutPassword } = updatedUser;
 
       return {
-        ...upadtedUserWithoutPassword,
+        ...updatedUserWithoutPassword,
         name: updatedUser.lastName
           ? updatedUser.firstName + ' ' + updatedUser.lastName
           : updatedUser.firstName,
