@@ -82,18 +82,18 @@ export class UsersController {
     return this.userService.getUser(id);
   }
 
-  @Patch('/update-role')
-  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  updateRole(@Body() editRoleDto: EditUserRoleDto) {
-    return this.userService.updateUserRole(editRoleDto);
-  }
-
   @Put('/update-profile')
   @UseGuards(JwtAuthGuard)
   @UsePipes(CustomPipe)
   updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
     return this.userService.updateProfile(request.user, userProfileDto);
+  }
+
+  @Patch('/update-role')
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  updateRole(@Body() editRoleDto: EditUserRoleDto) {
+    return this.userService.updateUserRole(editRoleDto);
   }
 
   @Delete('/delete-user')
