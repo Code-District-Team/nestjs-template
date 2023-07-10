@@ -10,7 +10,7 @@ export class adminUser1687780089925 implements MigrationInterface {
       firstName: 'Admin',
       lastName: 'User',
       email: 'saim.ashfaq+admin@codedistrict.com',
-      phoneNumber: '+13223269753',
+      mobilePhone: '+13223269753',
       password: bcrypt.hashSync(
         '25d55ad283aa400af464c76d713c07ad',
         bcrypt.genSaltSync(),

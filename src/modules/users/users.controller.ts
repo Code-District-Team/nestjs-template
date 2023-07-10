@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -25,6 +26,7 @@ import { UserIdDto } from './dto/userId.dto';
 
 import { UsersService } from './users.service';
 import { createSignedLink } from 'src/generalUtils/aws-config';
+import { PutBucketAccelerateConfigurationCommand } from '@aws-sdk/client-s3';
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -87,7 +89,7 @@ export class UsersController {
     return this.userService.updateUserRole(editRoleDto);
   }
 
-  @Post('/update-profile')
+  @Put('/update-profile')
   @UseGuards(JwtAuthGuard)
   @UsePipes(CustomPipe)
   updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
