@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,11 +9,12 @@ import { seedSourceOptions } from './config/seed.config';
 import { MailModule } from './modules/mail/mail.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MultiTenancyMiddleware } from './middlewares/multiTenancy.middleware';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "public"),
+      rootPath: join(__dirname, '..', 'public'),
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     TypeOrmModule.forRoot(seedSourceOptions),
@@ -24,4 +25,8 @@ import { join } from 'path';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MultiTenancyMiddleware).forRoutes('*');
+  }
+}
