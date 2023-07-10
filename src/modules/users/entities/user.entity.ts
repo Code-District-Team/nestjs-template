@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 
 import { Role } from '../../roles/entities/role.entity';
+// import { Organization } from '../../organizations/entities/organization.entity';
 
 // @Unique('my_personal_unique', ['username', 'email'])
 @Entity({ name: 'users' })
@@ -62,6 +63,12 @@ export class User {
     select: false,
   })
   forgetPasswordTokenExpires: number;
+
+  // @ManyToOne((type) => Organization, (organization) => organization.user, {
+  //   eager: true,
+  // })
+  // @JoinColumn({ name: 'organization_id' })
+  // organization: Organization;
 
   @CreateDateColumn({
     type: 'timestamp',
