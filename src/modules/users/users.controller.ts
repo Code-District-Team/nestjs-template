@@ -57,20 +57,21 @@ export class UsersController {
     return this.userService.getUser(request.user.id);
   }
 
+  @Get('/presignedUrl')
+  @UseGuards(JwtAuthGuard)
+  getPreSignedUrl() {
+    return createSignedLink(bucketName, 'Test Folder/test.txt', 'getObject');
+  }
+
   @Get('/upload-picture')
+  // @UseGuards(JwtAuthGuard)
   getUploadPictureUrl(@Req() request, @Param() param) {
     return createSignedLink(
       bucketName,
+      // `Test Folder/${request.user.id}/${param.fileName}`,
       `Test Folder/${param.fileName}`,
       'putObject',
     );
-  }
-
-  @Put('/update-profile')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(CustomPipe)
-  updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
-    return this.userService.updateProfile(request.user, userProfileDto);
   }
 
   @Get('/:id')
@@ -81,17 +82,18 @@ export class UsersController {
     return this.userService.getUser(id);
   }
 
-  @Get('/presignedUrl')
-  @UseGuards(JwtAuthGuard)
-  getPreSignedUrl() {
-    return createSignedLink(bucketName, 'Test Folder/test.txt', 'getObject');
-  }
-
   @Patch('/update-role')
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   updateRole(@Body() editRoleDto: EditUserRoleDto) {
     return this.userService.updateUserRole(editRoleDto);
+  }
+
+  @Put('/update-profile')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(CustomPipe)
+  updateProfile(@Req() request, @Body() userProfileDto: EditUserDto) {
+    return this.userService.updateProfile(request.user, userProfileDto);
   }
 
   @Delete('/delete-user')
