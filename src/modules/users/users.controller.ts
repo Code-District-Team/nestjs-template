@@ -44,7 +44,8 @@ export class UsersController {
   }
 
   @Get('/get-all')
-  @UseGuards(JwtAuthGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   getUsers(@Query() getUsersDto: GetUserRequestDto) {
     return this.userService.getAllUsers(getUsersDto);
   }
