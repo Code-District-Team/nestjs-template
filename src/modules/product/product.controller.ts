@@ -38,7 +38,7 @@ export class ProductController {
   @Post()
   async addProduct(@Body(CustomPipe) createProductDto: CreateProductDto) {
     const added = await this.productService.addProduct(createProductDto);
-    if (added) return "Product Added Successfully.";
+    if (added) return added;
     throw new InternalServerErrorException("Something went wrong");
   }
 
