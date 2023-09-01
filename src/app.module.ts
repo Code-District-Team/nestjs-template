@@ -9,6 +9,7 @@ import { seedSourceOptions } from './config/seed.config';
 import { MailModule } from './modules/mail/mail.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ProductModule } from './modules/product/product.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { join } from 'path';
     UsersModule,
     AuthModule,
     MailModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
