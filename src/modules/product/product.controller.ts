@@ -26,6 +26,14 @@ export class ProductController {
     return this.productService.getAllProducts();
   }
 
+  // get product by id
+  @Get(":id")
+  async getProductById(@Param(CustomPipe) deleteProductDto: DeleteProductDto) {
+    const product = await this.productService.getById(deleteProductDto.id);
+    if (product) return product;
+    throw new NotFoundException("Product not found");
+  }
+
   // add product
   @Post()
   async addProduct(@Body(CustomPipe) createProductDto: CreateProductDto) {

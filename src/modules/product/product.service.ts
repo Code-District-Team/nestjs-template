@@ -15,6 +15,10 @@ export class ProductService {
     return this.productRepository.find();
   }
 
+  getById(id: string): Promise<Product> {
+    return this.productRepository.findOne({ where: { id } });
+  }
+
   addProduct(createProductDto: CreateProductDto): Promise<Product> {
     return this.productRepository.save(this.productRepository.create(createProductDto));
   }
