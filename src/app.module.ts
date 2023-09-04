@@ -10,6 +10,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ProductModule } from './modules/product/product.module';
+import { Product } from "./modules/product/entities/product.entity";
 
 @Module({
   imports: [

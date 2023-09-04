@@ -7,13 +7,16 @@ import {
   NotFoundException,
   Param,
   Patch,
-  Post
+  Post, Query
 } from '@nestjs/common';
 import { ProductService } from "./product.service";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { DeleteProductDto } from "./dto/delete-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { CustomPipe } from "../../pipe/customValidation.pipe";
+import { paginate } from "../../decorators/pagination.decorator";
+import { QueryCollateralTypeDto } from "../../generalUtils/global.dtos";
+import { Product } from "./entities/product.entity";
 
 @Controller('product')
 export class ProductController {
@@ -21,8 +24,11 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {
   }
 
+
   @Get()
-  async getAllProducts() {
+  @paginate({ table: Product })
+  async getAllProducts(@Query(CustomPipe) query: QueryCollateralTypeDto) {
+    console.log("Hello");
     return this.productService.getAllProducts();
   }
 
