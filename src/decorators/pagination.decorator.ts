@@ -3,33 +3,39 @@ import { camelCase } from "typeorm/util/StringUtils";
 import { QueryCollateralTypeDto } from "../generalUtils/global.dtos";
 import { RelationFilter, RepoSelect } from "../generalUtils/interfaces";
 
-export function paginate(repo: RepoSelect, relations: RelationFilter[] = [], loadRelationIds = false) {
+export function paginate(repo: RepoSelect, relations: RelationFilter[] = []) {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
     descriptor.value = async function (...args: any[]) {
-
-      console.log(repo.table.toString());
 
       const query: QueryCollateralTypeDto = args[0];
       const isInitialized = dataSource.isInitialized;
       if (!isInitialized) await dataSource.initialize();
 
-      const builder = dataSource
-        .getRepository(repo.table)
-        .createQueryBuilder();
+      const repository = dataSource.getRepository(repo.table);
+      const tableName = repository.metadata.tableName;
+
+      const builder = repository.createQueryBuilder(tableName);
       if (repo.select)
-        builder.select(repo.select.map((s) => `${repo.table}.${s}`));
+        builder.select(repo.select.map((s: string) => `${tableName}.${s}`));
 
       relations.forEach((relation) => {
-        builder.leftJoinAndSelect(`relation.table`, relation.table.toString(), relation.on);
+        const repository = dataSource.getRepository(relation.table);
+        const alias = repository.metadata.tableName;
+        if (relation.joinType === "inner")
+          builder.innerJoinAndSelect(`relation.table`, alias, relation.on);
+        else
+          builder.leftJoinAndSelect(`relation.table`, alias, relation.on);
         if (relation.select)
-          builder.addSelect(relation.select.map((s) => `${relation.table.toString()}.${s}`));
+          builder.addSelect(relation.select.map((s) => `${alias}.${s}`));
+        else // select all columns from the relation table
+          builder.addSelect(alias);
       });
 
       if (query.sortBy)
-        builder.orderBy(`${repo.table}.${query.sortBy}`, query.sortOrder);
+        builder.orderBy(`${tableName}.${query.sortBy}`, query.sortOrder);
       if (query.sortOrder)
-        builder.orderBy(`${repo.table}.${query.sortBy}`, query.sortOrder);
+        builder.orderBy(`${tableName}.${query.sortBy}`, query.sortOrder);
 
       builder.limit(query.limit).offset((query.page - 1) * query.limit);
 
@@ -39,7 +45,7 @@ export function paginate(repo: RepoSelect, relations: RelationFilter[] = [], loa
       return {
         data: {
           total: results[1],
-          [camelCase(repo.toString())]: results[0],
+          [camelCase(tableName)]: results[0],
         },
       };
     };

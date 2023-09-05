@@ -2,6 +2,10 @@ import { Transform } from "class-transformer";
 import { IsEnum, IsNumber, IsOptional, Max, Min } from "class-validator";
 import { SortOrders, SortOrderValues } from "./types";
 
+/**
+  * This is a generic dto for querying a list of entities.
+  * Please extend and override the sortBy property to allow only valid sort fields.
+ */
 export class QueryCollateralTypeDto {
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
@@ -11,13 +15,13 @@ export class QueryCollateralTypeDto {
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
   @Min(1)
-  @Max(100)
+  @Max(100, { message: "limit must not be greater than 100, we can't bear that much load." })
   limit: number;
 
   @IsOptional()
   sortBy: string;
 
   @IsOptional()
-  @IsEnum(SortOrderValues)
+  @IsEnum(SortOrderValues, { message: "sortOrder must be one of the following " + SortOrderValues.join(", ") })
   sortOrder: SortOrders;
 }
