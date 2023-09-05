@@ -32,6 +32,9 @@ export function paginate(repo: RepoSelect, relations: RelationFilter[] = []) {
           builder.addSelect(alias);
       });
 
+      if (query.query) // ILIKE
+        builder.where(`${tableName}.name ILIKE :query`, { query: `%${query.query}%` });
+
       if (query.sortBy)
         builder.orderBy(`${tableName}.${query.sortBy}`, query.sortOrder);
       if (query.sortOrder)

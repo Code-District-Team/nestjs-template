@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, Max, Min } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, Max, MaxLength, Min } from "class-validator";
 import { SortOrders, SortOrderValues } from "./types";
 
 /**
@@ -24,4 +24,8 @@ export class QueryCollateralTypeDto {
   @IsOptional()
   @IsEnum(SortOrderValues, { message: "sortOrder must be one of the following " + SortOrderValues.join(", ") })
   sortOrder: SortOrders;
+
+  @IsOptional()
+  @MaxLength(100, { message: "query must not be greater than 100 characters." })
+  query: string;
 }
