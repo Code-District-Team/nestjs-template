@@ -21,7 +21,7 @@ import { RoleEnum } from '../../common/enums/role.enum';
 import { EditUserDto } from './dto/editUser.dto';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
-import { GetUserRequestDto } from './dto/getUsers.dto';
+import { GetUserRequestDto, GetUserRequestDto2 } from './dto/getUsers.dto';
 import { UserIdDto } from './dto/userId.dto';
 
 import { UsersService } from './users.service';
@@ -46,7 +46,7 @@ export class UsersController {
   @Get('/get-all')
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  getUsers(@Query() getUsersDto: GetUserRequestDto) {
+  getUsers(@Query() getUsersDto: GetUserRequestDto2) {
     return this.userService.getAllUsers(getUsersDto);
   }
 

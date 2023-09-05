@@ -1,4 +1,5 @@
 import { IsEmail, IsNumber, IsString } from 'class-validator';
+import { PartialType } from "@nestjs/mapped-types";
 
 export class GetUserRequestDto {
   @IsString()
@@ -7,6 +8,7 @@ export class GetUserRequestDto {
 
   @IsString()
   firstName: string;
+
 
   @IsString()
   lastName: string;
@@ -17,3 +19,5 @@ export class GetUserRequestDto {
   @IsNumber()
   recordsPerPage: number;
 }
+
+export class GetUserRequestDto2 extends PartialType(GetUserRequestDto) {}
