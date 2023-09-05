@@ -26,7 +26,7 @@ export class ProductController {
 
 
   @Get()
-  @paginate({ table: Product, select: ["id", "name", "price"] })
+  @paginate({ table: Product })
   async getAllProducts(@Query(CustomPipe) query: QueryCollateralTypeDto) {}
 
   // get product by id
