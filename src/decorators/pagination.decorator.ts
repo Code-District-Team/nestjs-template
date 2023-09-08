@@ -20,16 +20,12 @@ export function paginate(repo: RepoSelect, relations: RelationFilter[] = []) {
         builder.select(repo.select.map((s: string) => `${tableName}.${s}`));
 
       relations.forEach((relation) => {
-        const repository = dataSource.getRepository(relation.table);
-        const alias = repository.metadata.tableName;
         if (relation.joinType === "inner")
-          builder.innerJoinAndSelect(`relation.table`, alias, relation.on);
+          builder.innerJoin(relation.property, relation.alias, relation.condition, relation.parameters);
         else
-          builder.leftJoinAndSelect(`relation.table`, alias, relation.on);
+          builder.leftJoin(relation.property, relation.alias, relation.condition, relation.parameters);
         if (relation.select)
-          builder.addSelect(relation.select.map((s) => `${alias}.${s}`));
-        else // select all columns from the relation table
-          builder.addSelect(alias);
+          builder.addSelect(relation.select.map((s) => s));
       });
 
       if (query.query) // ILIKE

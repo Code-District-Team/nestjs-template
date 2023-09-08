@@ -7,25 +7,25 @@ import { User } from '../users/entities/user.entity';
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  sendEmail(to: string, subject: string, data: any, template: string): Promise<SentMessageInfo | null> {
-    try {
-      data = {
-        ...data,
-        frontendUrl: process.env.FRONTEND_URL,
-      };
-
-      return this.mailerService.sendMail({
-        to: to,
-        from: `Support Team <${FROM_EMAIL_VALUE}>`, // override default from
-        subject: subject,
-        template: template,
-        context: data,
-      });
-    } catch (err) {
-      console.log(err);
-    }
-    return null;
-  }
+  // sendEmail(to: string, subject: string, data: any, template: string): Promise<SentMessageInfo | null> {
+  //   try {
+  //     data = {
+  //       ...data,
+  //       frontendUrl: process.env.FRONTEND_URL,
+  //     };
+  //
+  //     return this.mailerService.sendMail({
+  //       to: to,
+  //       from: `Support Team <${FROM_EMAIL_VALUE}>`, // override default from
+  //       subject: subject,
+  //       template: template,
+  //       context: data,
+  //     });
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  //   return null;
+  // }
 
   async sendForgetPassword(user: User, token: string) {
     try {

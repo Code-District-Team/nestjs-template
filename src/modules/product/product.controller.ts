@@ -2,7 +2,7 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
+  Get, Inject,
   InternalServerErrorException,
   NotFoundException,
   Param,
@@ -17,13 +17,31 @@ import { CustomPipe } from "../../pipe/customValidation.pipe";
 import { paginate } from "../../decorators/pagination.decorator";
 import { QueryCollateralTypeDto } from "../../generalUtils/global.dtos";
 import { Product } from "./entities/product.entity";
+import { CACHE_MANAGER, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
+
 
 @Controller('product')
 export class ProductController {
 
-  constructor(private readonly productService: ProductService) {
+  constructor(private readonly productService: ProductService, @Inject(CACHE_MANAGER) private cacheManager: Cache) {
   }
 
+  @Get("test")
+  async test() {
+    const custom = await this.cacheManager.get('custom_key');
+    if (!custom) {
+      console.log("set");
+      await this.cacheManager.set('custom_key', {
+        date: new Date(),
+        value: "custom_value"
+      }, 10000);
+      return await this.cacheManager.get('custom_key');
+    }
+    console.log("get");
+    return custom;
+  }
 
   @Get()
   @paginate({ table: Product }, [
@@ -32,12 +50,12 @@ export class ProductController {
   async getAllProducts(@Query(CustomPipe) query: QueryCollateralTypeDto) {}
 
   // get product by id
-  @Get(":id")
-  async getProductById(@Param(CustomPipe) deleteProductDto: DeleteProductDto) {
-    const product = await this.productService.getById(deleteProductDto.id);
-    if (product) return product;
-    throw new NotFoundException("Product not found");
-  }
+  // @Get(":id")
+  // async getProductById(@Param(CustomPipe) deleteProductDto: DeleteProductDto) {
+  //   const product = await this.productService.getById(deleteProductDto.id);
+  //   if (product) return product;
+  //   throw new NotFoundException("Product not found");
+  // }
 
   // add product
   @Post()

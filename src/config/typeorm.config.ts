@@ -13,7 +13,7 @@ export const dataSourceOptions: DataSourceOptions = {
   migrationsRun: false, // to automatically run migrations set it to true
   synchronize: false, //true if you want to create auto migrations
   // logging: ["query", "error"],
-  logging: true,
+  logging: false,
   migrationsTableName: 'migrations',
 };
 

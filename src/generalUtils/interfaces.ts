@@ -1,5 +1,5 @@
 import { EntityTarget } from "typeorm/common/EntityTarget";
-import { BaseEntity } from "typeorm";
+import { BaseEntity, ObjectLiteral } from "typeorm";
 
 export interface RepoSelect {
   table: EntityTarget<BaseEntity>,
@@ -7,8 +7,10 @@ export interface RepoSelect {
 }
 
 export interface RelationFilter {
-  table: EntityTarget<BaseEntity>,
   joinType: "inner" | "left",
-  on: string,
+  property: string,
+  alias: string,
+  condition?: string,
+  parameters?: ObjectLiteral,
   select: string[],
 }

@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import { v4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { LoginDto } from '../auth/dto/loginUser.dto';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Repository, UpdateResult } from 'typeorm';
 import { deleteObjProps, updateObjProps } from 'src/generalUtils/helper';
 import { EditContactDto } from './dto/editContactDetails.dto';
 import { Role } from '../roles/entities/role.entity';
@@ -104,6 +104,10 @@ export class UsersService {
       );
     }
     return user;
+  }
+
+  updateProfileURL(userId: string, profileImageUrl: string): Promise<UpdateResult> {
+    return this.userRepository.update(userId, { profileImageUrl });
   }
 
   async getUserByEmail(email: string) {

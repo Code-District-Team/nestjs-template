@@ -11,7 +11,8 @@ import { RoleEnum } from 'src/common/enums/role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private reflector: Reflector) {
+  }
 
   canActivate(context: ExecutionContext): boolean {
     const allowedRoles = this.reflector.get<RoleEnum[]>(
@@ -23,9 +24,7 @@ export class RolesGuard implements CanActivate {
     const user = request.user;
     if (!allowedRoles || !user.role)
       throw new HttpException('roles not defined', HttpStatus.BAD_REQUEST);
-    const {
-      role: { name: userRole },
-    } = user;
+    const { role: { name: userRole } } = user;
 
     if (!allowedRoles.includes(userRole)) {
       throw new UnauthorizedException('Invalid Permission or Role');

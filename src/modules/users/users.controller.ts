@@ -1,15 +1,18 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
-  Get,
+  Get, InternalServerErrorException,
   Param,
   Patch,
   Post,
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -21,17 +24,21 @@ import { RoleEnum } from '../../common/enums/role.enum';
 import { EditUserDto } from './dto/editUser.dto';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
-import { GetUserRequestDto, GetUserRequestDto2 } from './dto/getUsers.dto';
+import { GetUserRequestDto2 } from './dto/getUsers.dto';
 import { UserIdDto } from './dto/userId.dto';
 
 import { UsersService } from './users.service';
 import { createSignedLink } from 'src/generalUtils/aws-config';
+import { FileInterceptor } from "@nestjs/platform-express";
+import * as Buffer from "buffer";
+import { multerOptions } from "../../generalUtils/helper";
 
 const bucketName = process.env.AWS_BUCKET;
 
 @Controller('user')
 export class UsersController {
-  constructor(private readonly userService: UsersService) {}
+  constructor(private readonly userService: UsersService) {
+  }
 
   @Get('/roles')
   @UseGuards(JwtAuthGuard)
@@ -42,6 +49,7 @@ export class UsersController {
       console.log(err);
     }
   }
+
 
   @Get('/get-all')
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
@@ -115,5 +123,21 @@ export class UsersController {
       inviteUserDto.roleId,
     );
     return { message: status };
+  }
+
+  // upload picture
+  @Post('/upload-picture')
+  @Roles(RoleEnum.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  async uploadPicture(@Req() request, @UploadedFile() file) {
+    if (request.fileValidationError) {
+      throw new BadRequestException(request.fileValidationError);
+    }
+    if (!file)
+      throw new BadRequestException("Couldn't update profile picture, only image of size 5MB is allowed");
+    const updateResult = await this.userService.updateProfileURL(request.user.id, file.path);
+    if (updateResult.affected) return file;
+    throw new InternalServerErrorException("Something bad happened while updating profile picture");
   }
 }
