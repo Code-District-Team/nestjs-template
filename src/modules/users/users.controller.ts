@@ -107,9 +107,9 @@ export class UsersController {
   @Delete('/delete-user')
   @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @UsePipes(ValidationPipe)
-  deleteUser(@Query('userId') userId: UserIdDto) {
-    return this.userService.deleteUser(userId);
+  deleteUser(@Query(ValidationPipe) userId: UserIdDto) {
+    const { id } = userId
+    return this.userService.deleteUser(id);
   }
 
   @Post('/invite-user')
