@@ -16,6 +16,8 @@ import { jwtPayload } from './jwt-payload.interface';
 import * as bcrypt from 'bcryptjs';
 
 import { User } from '../users/entities/user.entity';
+import { InjectQueue } from "@nestjs/bull";
+import { Queue } from "bull";
 
 @Injectable()
 export class AuthService {
@@ -23,7 +25,9 @@ export class AuthService {
     private userService: UsersService,
     private mailService: MailService,
     private jwtService: JwtService,
-  ) {}
+    @InjectQueue('mail') private mailQueue: Queue
+  ) {
+  }
 
   async signUp(userDto: CreateUserDto): Promise<object> {
     const result = await this.userService.signUp(userDto);
@@ -42,6 +46,7 @@ export class AuthService {
       throw new HttpException('User Not Created', HttpStatus.BAD_REQUEST);
     }
   }
+
   async signIn(userDto: LoginDto): Promise<object> {
     let user = await this.userService.validateUser(userDto);
 
@@ -53,10 +58,11 @@ export class AuthService {
     const { password, ...userWithoutPassword } = user;
 
     const response = {
-      user: {...userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
         name: user.lastName
-        ? user.firstName + ' ' + user.lastName
-        : user.firstName
+          ? user.firstName + ' ' + user.lastName
+          : user.firstName
       },
       apiToken: accessToken,
     };
@@ -92,10 +98,15 @@ export class AuthService {
   async forgetPassword(email) {
     const user = await this.userService.forgetPasswordUser(email);
     if (!user) throw new NotFoundException('Email doest not Exists');
-    return await this.mailService.sendForgetPassword(
+
+    await this.mailQueue.add('sendForgetPassword', {
       user,
-      user.forgetPasswordToken,
-    );
+    }, { priority: 1, delay: 1000, attempts: 10, stackTraceLimit: 3, removeOnComplete: true });
+    return "ok";
+    // return await this.mailService.sendForgetPassword(
+    //   user,
+    //   user.forgetPasswordToken,
+    // );
   }
 
   async resetPassword(password, token) {

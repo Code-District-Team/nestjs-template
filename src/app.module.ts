@@ -12,9 +12,12 @@ import { join } from 'path';
 import { ProductModule } from './modules/product/product.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { HeroModule } from './modules/hero/hero.module';
+import { BullModule } from "@nestjs/bull";
+import { MailConsumer } from "./process-consumer/mail-consumer";
 
 @Module({
   imports: [
+    // MailConsumer,
     CacheModule.register({
       isGlobal: true,
     }),
@@ -34,4 +37,5 @@ import { HeroModule } from './modules/hero/hero.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+}

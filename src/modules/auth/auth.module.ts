@@ -9,9 +9,19 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { jwtConstants } from 'src/generalUtils/constant';
+import { BullModule } from "@nestjs/bull";
 
 @Module({
   imports: [
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'mail',
+    }),
     UsersModule,
     MailModule,
     PassportModule,
@@ -20,7 +30,9 @@ import { jwtConstants } from 'src/generalUtils/constant';
       signOptions: { expiresIn: jwtConstants.time },
     }),
   ],
-  providers: [AuthService, JwtStrategy],
+  // process consumer
+  providers: [AuthService, JwtStrategy,],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule {
+}
