@@ -2,7 +2,7 @@ import {
   Body,
   Controller,
   Delete,
-  Get, Inject,
+  Get, HttpCode, HttpStatus, Inject,
   InternalServerErrorException,
   NotFoundException,
   Param,
@@ -14,11 +14,12 @@ import { CreateProductDto } from "./dto/create-product.dto";
 import { DeleteProductDto } from "./dto/delete-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { CustomPipe } from "../../pipe/customValidation.pipe";
-import { paginate } from "../../decorators/pagination.decorator";
+import { PaginateEntity } from "../../decorators/pagination.decorator";
 import { QueryCollateralTypeDto } from "../../generalUtils/global.dtos";
 import { Product } from "./entities/product.entity";
 import { CACHE_MANAGER, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { validationPipe } from "../../pipe/nest-validation.pipe";
 
 
 
@@ -43,11 +44,12 @@ export class ProductController {
     return custom;
   }
 
-  @Get()
-  @paginate({ table: Product }, [
+  @HttpCode(HttpStatus.OK)
+  @Post("/get")
+  @PaginateEntity({ table: Product }, [
 
   ])
-  async getAllProducts(@Query(CustomPipe) query: QueryCollateralTypeDto) {}
+  async getAllProducts(@Body(validationPipe) query: QueryCollateralTypeDto) {}
 
   // get product by id
   // @Get(":id")

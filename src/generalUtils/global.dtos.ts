@@ -1,10 +1,21 @@
-import { Transform } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, Max, MaxLength, Min } from "class-validator";
-import { SortOrders, SortOrderValues } from "./types";
+import { Transform, Type } from "class-transformer";
+import {
+  ArrayNotEmpty, IsArray, IsDate, IsDateString,
+  IsEnum, IsNotEmptyObject,
+  IsNumber, IsObject,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  ValidateIf,
+  ValidateNested
+} from "class-validator";
+import { AgGridFilter, AgGridFilterValues, SortOrders, SortOrderValues } from "./types";
 
 /**
-  * This is a generic dto for querying a list of entities.
-  * Please extend and override the sortBy property to allow only valid sort fields.
+ * This is a generic dto for querying a list of entities.
+ * Please extend and override the sortBy property to allow only valid sort fields.
  */
 export class QueryCollateralTypeDto {
   @Transform(({ value }) => parseInt(value))
@@ -28,4 +39,58 @@ export class QueryCollateralTypeDto {
   @IsOptional()
   @MaxLength(100, { message: "query must not be greater than 100 characters." })
   query: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => AgGridQueryDto)
+  agGrid: AgGridQueryDto[];
 }
+
+export class ConditionQueryDto {
+  @IsEnum(["text", "number", "date"], { message: "type must be one of the following text, number, date" })
+  @MaxLength(250, { message: "type must not be greater than 250 characters." })
+  filterType: "text" | "number" | "date";
+
+  @IsEnum(AgGridFilterValues, { message: "filterModel must be one of the following " + AgGridFilterValues.join(", ") })
+  type: AgGridFilter;
+
+  @ValidateIf((o) => o.filterType !== "date" && o.type !== "empty" && o.type !== "notEmpty")
+  @IsString()
+  @MaxLength(250, { message: "value must not be greater than 250 characters." })
+  filter: string;
+
+  @ValidateIf((o) => o.filterType === "date")
+  @Type(() => Date)
+  @IsDate()
+  dateFrom: Date;
+
+  @ValidateIf((o) => o.filterType === "date" && o.type === "inRange")
+  @IsDateString()
+  dateTo: Date;
+}
+
+export class AgGridQueryDto {
+  @IsString()
+  @MaxLength(100, { message: "field must not be greater than 100 characters." })
+  field: string;
+
+  @IsObject()
+  @IsNotEmptyObject()
+  @ValidateNested({ each: true })
+  @Type(() => ConditionQueryDto)
+  condition1: ConditionQueryDto;
+
+  @IsOptional()
+  @IsObject()
+  @IsNotEmptyObject()
+  @ValidateNested({ each: true })
+  @Type(() => ConditionQueryDto)
+  condition2: ConditionQueryDto;
+
+  @ValidateIf((o) => o.condition2)
+  @IsEnum(["AND", "OR"], { message: "operator is required when condition2 is present and must be one of the following AND, OR" })
+  operator: "AND" | "OR";
+}
+
