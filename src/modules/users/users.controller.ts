@@ -3,7 +3,8 @@ import {
   Body,
   Controller,
   Delete,
-  Get, InternalServerErrorException,
+  Get,
+  InternalServerErrorException,
   Param,
   Patch,
   Post,
@@ -30,7 +31,6 @@ import { UserIdDto } from './dto/userId.dto';
 import { UsersService } from './users.service';
 import { createSignedLink } from 'src/generalUtils/aws-config';
 import { FileInterceptor } from "@nestjs/platform-express";
-import * as Buffer from "buffer";
 import { multerOptions } from "../../generalUtils/helper";
 
 const bucketName = process.env.AWS_BUCKET;

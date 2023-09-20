@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { RoleEnum } from '../../../common/enums/role.enum';
+import { RolePermission } from "../../role-permissions/entities/role-permission.entity";
 
 @Entity({ name: 'roles' })
 export class Role {
@@ -18,10 +19,13 @@ export class Role {
     type: 'varchar',
     default: RoleEnum.USER,
   })
-  name: RoleEnum;
+  name: string;
 
   @OneToMany(() => User, (user) => user.role)
   users: User[];
+
+  @OneToMany(() => RolePermission, (rolePermission) => rolePermission.role)
+  rolePermissions: RolePermission[];
 
   @CreateDateColumn({
     type: 'timestamp',

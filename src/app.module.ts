@@ -12,6 +12,11 @@ import { join } from 'path';
 import { ProductModule } from './modules/product/product.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { HeroModule } from './modules/hero/hero.module';
+import { UserRolesModule } from './modules/user-roles/user-roles.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
+import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
+import { RolesController } from './modules/roles/roles.controller';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -30,8 +35,12 @@ import { HeroModule } from './modules/hero/hero.module';
     MailModule,
     ProductModule,
     HeroModule,
+    UserRolesModule,
+    PermissionsModule,
+    RolePermissionsModule,
+    RolesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, RolesController],
   providers: [AppService],
 })
 export class AppModule {}

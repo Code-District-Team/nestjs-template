@@ -1,20 +1,17 @@
 import { StatusEnum } from '../../../common/enums/status.enum';
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  ManyToOne,
-  UpdateDateColumn,
   DeleteDateColumn,
-  JoinColumn,
-  OneToMany,
+  Entity,
+  JoinColumn, JoinTable, ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { Role } from '../../roles/entities/role.entity';
-// import { Organization } from '../../organizations/entities/organization.entity';
 
-// @Unique('my_personal_unique', ['username', 'email'])
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -86,6 +83,20 @@ export class User {
   @ManyToOne(() => Role, (role) => role.users, { eager: true })
   @JoinColumn({ name: 'role_id' })
   role: Role;
+
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+  })
+  roles: Role[];
 
   @Column({
     type: 'enum',
