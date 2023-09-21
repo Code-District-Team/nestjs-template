@@ -40,7 +40,7 @@ import { RolesModule } from './modules/roles/roles.module';
     RolePermissionsModule,
     RolesModule,
   ],
-  controllers: [AppController, RolesController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
