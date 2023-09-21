@@ -108,7 +108,6 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
         builder.where(`to_tsvector('english', ${tableName}.name) @@ to_tsquery('english', :query)`,
           { query: query.query });
 
-
       query.agGrid?.forEach((agGrid, index) => {
         const field = `${tableName}.${agGrid.field}`;
         const condition1 = agGrid.condition1;

@@ -17,4 +17,6 @@ export class UserRole {
 
   @ManyToOne(() => Role, (role) => role.rolePermissions)
   role: Role;
+
+
 }
