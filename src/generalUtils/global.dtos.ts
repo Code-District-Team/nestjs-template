@@ -1,6 +1,6 @@
 import { Transform, Type } from "class-transformer";
 import {
-  ArrayNotEmpty, IsArray, IsDate, IsDateString,
+  ArrayNotEmpty, IsArray, IsDate, IsDateString, IsDefined,
   IsEnum, IsNotEmptyObject,
   IsNumber, IsObject,
   IsOptional,
@@ -12,6 +12,7 @@ import {
   ValidateNested
 } from "class-validator";
 import { AgGridFilter, AgGridFilterValues, SortOrders, SortOrderValues } from "./types";
+import { IsStringOrNull } from "../pipe/string-or-null.pip";
 
 /**
  * This is a generic dto for querying a list of entities.
@@ -57,9 +58,8 @@ export class ConditionQueryDto {
   type: AgGridFilter;
 
   @ValidateIf((o) => o.filterType !== "date" && o.type !== "empty" && o.type !== "notEmpty")
-  @IsString()
-  @MaxLength(250, { message: "value must not be greater than 250 characters." })
-  filter: string;
+  @IsStringOrNull()
+  filter: string | number;
 
   @ValidateIf((o) => o.filterType === "date")
   @Type(() => Date)

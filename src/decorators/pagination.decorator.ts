@@ -20,7 +20,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
         ['filter' + index]: `${
           condition.filterType === "date" ?
             // "2023-09-05T10:25:20.958Z"
-            condition.dateFrom.toISOString()
+            condition.dateFrom.toISOString().slice(0, 10)
 
             : condition.filter}`
       }];
@@ -28,7 +28,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     case "notEqual":
       [expression, params] = [`${field} != :filter${index}`, {
         ['filter' + index]: `${
-          condition.filterType === "date" ? condition.dateFrom.toISOString() : condition.filter}`
+          condition.filterType === "date" ? condition.dateFrom.toISOString().slice(0, 10) : condition.filter}`
       }];
       break;
     case "startsWith":
@@ -40,7 +40,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     case "lessThan":
       [expression, params] = [`${field} < :filter${index}`, {
         ['filter' + index]: `${
-          condition.filterType === "date" ? condition.dateFrom.toISOString() : condition.filter}`
+          condition.filterType === "date" ? condition.dateFrom.toISOString().slice(0, 10) : condition.filter}`
       }];
       break;
     case "lessThanOrEqual":
@@ -49,7 +49,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     case "greaterThan":
       [expression, params] = [`${field} > :filter${index}`, {
         ['filter' + index]: `${
-          condition.filterType === "date" ? condition.dateFrom.toISOString() : condition.filter}`
+          condition.filterType === "date" ? condition.dateFrom.toISOString().slice(0, 10) : condition.filter}`
       }];
       break;
     case "greaterThanOrEqual":
@@ -60,8 +60,8 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
         condition.dateTo.setHours(23, 59, 59, 999);
       }
       [expression, params] = [`${field} BETWEEN :dateFrom${index} AND :dateTo${index}`, {
-        ['dateFrom' + index]: condition.dateFrom.toISOString(),
-        ['dateTo' + index]: condition.dateTo.toISOString()
+        ['dateFrom' + index]: condition.dateFrom.toISOString().slice(0, 10),
+        ['dateTo' + index]: condition.dateTo.toISOString().slice(0, 10)
       }];
       break;
     case "empty":
@@ -117,12 +117,6 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
         const field = `${tableName}.${agGrid.field}`;
         const condition1 = agGrid.condition1;
         const condition2 = agGrid.condition2;
-        if (condition1.filterType === "number" && condition1.type !== "notEmpty" && condition1.type !== "empty" &&
-          isNaN(parseInt(condition1.filter)))
-          throw new BadRequestException("filter must be a number in condition1");
-        if (condition2?.filterType === "number" && condition2.type !== "notEmpty" && condition2.type !== "empty" &&
-          isNaN(parseInt(condition2.filter)))
-          throw new BadRequestException("filter must be a number in condition2");
         if (condition2) {
           builder.andWhere(new Brackets((qb) => {
             composeQuery(qb, index, field, condition1);
