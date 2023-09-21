@@ -104,9 +104,13 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
       });
 
 
-      if (query.query) // ILIKE
-        builder.where(`to_tsvector('english', ${tableName}.name) @@ to_tsquery('english', :query)`,
-          { query: query.query });
+      if (query.query) {
+        // query.query = query.query.replace(" ", ":* & ");
+        // builder.where(`to_tsvector('english', ${tableName}.name) @@ to_tsquery('english', :query)`,
+        //   { query: query.query });
+        // ILIKE
+        builder.where(`${tableName}.name ILIKE :query`, { query: `%${query.query}%` });
+      }
 
 
       query.agGrid?.forEach((agGrid, index) => {
