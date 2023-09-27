@@ -9,6 +9,8 @@ import { toYYYYMMDD } from "../generalUtils/helper";
 
 function composeQuery(builder: WhereExpressionBuilder, index: number, field: string, condition: ConditionQueryDto, operator: "AND" | "OR" = "AND") {
   let expression: string, params: { [key: string]: string | Date };
+  if (condition.filterType === "date")
+    field = `DATE(${field})`;
   switch (condition.type) {
     case "contains":
       [expression, params] = [`${field} ILIKE :filter${index}`, { ['filter' + index]: `%${condition.filter}%` }];
@@ -22,7 +24,6 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
           condition.filterType === "date" ?
             // "2023-09-05T10:25:20.958Z"
             toYYYYMMDD(condition.dateFrom)
-
             : condition.filter}`
       }];
       break;
@@ -75,6 +76,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     default:
       return;
   }
+  console.log({expression, params});
   if (operator === "AND")
     builder.andWhere(expression, params);
   else

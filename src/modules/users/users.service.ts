@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -237,10 +238,13 @@ export class UsersService {
     newUser.mobilePhone = mobilePhone;
     if (!isPendingUser) {
       newUser.email = email;
-      newUser.roles = [await this.roleRepository.findOne({
+      const role = await this.roleRepository.findOne({
         where: { name: RoleEnum.USER },
         relations: ["permissions"]
-      })];
+      });
+      if (!role)
+        throw new BadRequestException("This role does not exist.")
+      newUser.roles = [role];
     }
     newUser.status = StatusEnum.ACTIVE;
 
