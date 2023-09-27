@@ -133,7 +133,6 @@ export class MailService {
   }
 
   async sendUserInvite(user: User, token: string) {
-    const userRole = user.role.name;
     try {
       const newToken = await this.mailerService.sendMail({
         to: user.email,

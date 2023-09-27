@@ -1,11 +1,11 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
-import { RoleEnum } from '../common/enums/role.enum';
+import { MigrationInterface, QueryRunner, Table } from "typeorm"
 
-export class createRolesTable1680168707214 implements MigrationInterface {
+export class TblPermissions1695192263696 implements MigrationInterface {
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'roles',
+        name: 'permissions',
         columns: [
           {
             name: 'id',
@@ -18,9 +18,14 @@ export class createRolesTable1680168707214 implements MigrationInterface {
           {
             name: 'name',
             type: 'varchar',
-            length: '255',
+            length: '250',
             isUnique: true,
-            default: 'USER',
+          },
+          {
+            name: 'code',
+            type: 'varchar',
+            length: '250',
+            isUnique: true,
           },
           {
             name: 'created_at',
@@ -32,12 +37,13 @@ export class createRolesTable1680168707214 implements MigrationInterface {
             type: 'timestamp',
             default: 'now()',
           },
-        ],
-      }),
+        ]
+      })
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('roles');
+    await queryRunner.dropTable('permissions');
   }
+
 }

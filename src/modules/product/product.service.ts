@@ -11,8 +11,12 @@ export class ProductService {
   constructor(@InjectRepository(Product) private readonly productRepository: Repository<Product>) {
   }
 
-  getAllProducts(): Promise<Product[]> {
-    return this.productRepository.find();
+  async getAllProducts(): Promise<Product[]> {
+    const result = await this.productRepository.find();
+    result.forEach(product => {
+      product.price = +product.price;
+    });
+    return result;
   }
 
   getById(id: string): Promise<Product> {

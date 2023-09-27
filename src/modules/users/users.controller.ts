@@ -3,7 +3,8 @@ import {
   Body,
   Controller,
   Delete,
-  Get, InternalServerErrorException,
+  Get,
+  InternalServerErrorException,
   Param,
   Patch,
   Post,
@@ -30,8 +31,8 @@ import { UserIdDto } from './dto/userId.dto';
 import { UsersService } from './users.service';
 import { createSignedLink } from 'src/generalUtils/aws-config';
 import { FileInterceptor } from "@nestjs/platform-express";
-import * as Buffer from "buffer";
 import { multerOptions } from "../../generalUtils/helper";
+import { AssignRolesDto } from "./dto/assign-roles.dto";
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -52,8 +53,8 @@ export class UsersController {
 
 
   @Get('/get-all')
-  @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   getUsers(@Query() getUsersDto: GetUserRequestDto2) {
     return this.userService.getAllUsers(getUsersDto);
   }
@@ -140,4 +141,10 @@ export class UsersController {
     if (updateResult.affected) return file;
     throw new InternalServerErrorException("Something bad happened while updating profile picture");
   }
+
+  @Post("/assign-roles")
+  assignRoles(@Body() userRoles: AssignRolesDto) {
+    return this.userService.assignRoles(userRoles);
+  }
+
 }

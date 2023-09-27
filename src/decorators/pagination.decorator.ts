@@ -112,7 +112,6 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
         builder.where(`${tableName}.name ILIKE :query`, { query: `%${query.query}%` });
       }
 
-
       query.agGrid?.forEach((agGrid, index) => {
         const field = `${tableName}.${agGrid.field}`;
         const condition1 = agGrid.condition1;
