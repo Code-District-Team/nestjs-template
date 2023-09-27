@@ -7,17 +7,17 @@ require('dotenv').config()
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.sendgrid.net',
+        host: process.env.MAIL_HOST,
         secure: true,
-        port: 465,
+        port: +process.env.MAIL_PORT,
 
         auth: {
-          user: process.env.SMTP_KEY,
-          pass: process.env.SMTP_PASSWORD,
+          user: process.env.MAIL_USERNAME,
+          pass: process.env.MAIL_PASSWORD,
         },
       },
       defaults: {
-        from: `Forgot Password Request <${process.env.SMTP_EMAIL}>`,
+        from: `Forgot Password Request <${process.env.MAIL_USERNAME}>`,
       },
       template: {
         dir: process.cwd() + '/templates/',

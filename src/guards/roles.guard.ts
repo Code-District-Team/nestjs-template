@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RoleEnum } from 'src/common/enums/role.enum';
+import { User } from "../modules/users/entities/user.entity";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -20,15 +21,22 @@ export class RolesGuard implements CanActivate {
     );
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
-    if (!allowedRoles || !user.role)
+    const user: User = request.user;
+    if (!allowedRoles || !user.roles)
       throw new HttpException('roles not defined', HttpStatus.BAD_REQUEST);
-    const { role: { name: userRole } } = user;
-
-    if (!allowedRoles.includes(userRole)) {
+    const roles = user.roles.map((role) => role.name);
+    let rolesExists = false;
+    roles.forEach((role) => {
+      allowedRoles.forEach((allowedRole) => {
+        if (role === allowedRole) {
+          rolesExists = true;
+          return;
+        }
+      });
+    });
+    if (!rolesExists) {
       throw new UnauthorizedException('Invalid Permission or Role');
     }
-
     return true;
   }
 }

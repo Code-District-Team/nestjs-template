@@ -11,6 +11,12 @@ export const deleteObjProps = (object: Object, props: Array<string>) => {
   }
 };
 
+export const toYYYYMMDD = (date: Date) => {
+  const mm = date.getMonth() + 1; // getMonth() is zero-based
+  const dd = date.getDate();
+  return [date.getFullYear(), mm > 9 ? mm : '0' + mm, dd > 9 ? dd : '0' + dd].join('-');
+}
+
 export const updateObjProps = (src: object, dest: object) => {
   Object.keys(dest).forEach((obj) => {
     if (src[obj])

@@ -115,7 +115,7 @@ export class UsersService {
   async getUserByEmail(email: string) {
     let user = await this.userRepository.findOne({
       where: { email },
-      relations: ['role'],
+      relations: ['roles', 'roles.permissions'],
     });
 
     return user;

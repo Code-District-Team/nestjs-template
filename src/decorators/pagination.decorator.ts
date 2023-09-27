@@ -2,8 +2,9 @@ import dataSource from "../config/typeorm.config";
 import { camelCase } from "typeorm/util/StringUtils";
 import { ConditionQueryDto, QueryCollateralTypeDto } from "../generalUtils/global.dtos";
 import { RelationFilter, RepoSelect } from "../generalUtils/interfaces";
-import { Brackets, WhereExpressionBuilder } from "typeorm";
+import { Brackets, ColumnType, WhereExpressionBuilder } from "typeorm";
 import { BadRequestException } from "@nestjs/common";
+import { toYYYYMMDD } from "../generalUtils/helper";
 
 
 function composeQuery(builder: WhereExpressionBuilder, index: number, field: string, condition: ConditionQueryDto, operator: "AND" | "OR" = "AND") {
@@ -20,7 +21,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
         ['filter' + index]: `${
           condition.filterType === "date" ?
             // "2023-09-05T10:25:20.958Z"
-            condition.dateFrom.toISOString().slice(0, 10)
+            toYYYYMMDD(condition.dateFrom)
 
             : condition.filter}`
       }];
@@ -28,7 +29,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     case "notEqual":
       [expression, params] = [`${field} != :filter${index}`, {
         ['filter' + index]: `${
-          condition.filterType === "date" ? condition.dateFrom.toISOString().slice(0, 10) : condition.filter}`
+          condition.filterType === "date" ? toYYYYMMDD(condition.dateFrom) : condition.filter}`
       }];
       break;
     case "startsWith":
@@ -40,7 +41,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     case "lessThan":
       [expression, params] = [`${field} < :filter${index}`, {
         ['filter' + index]: `${
-          condition.filterType === "date" ? condition.dateFrom.toISOString().slice(0, 10) : condition.filter}`
+          condition.filterType === "date" ? toYYYYMMDD(condition.dateFrom) : condition.filter}`
       }];
       break;
     case "lessThanOrEqual":
@@ -49,7 +50,7 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     case "greaterThan":
       [expression, params] = [`${field} > :filter${index}`, {
         ['filter' + index]: `${
-          condition.filterType === "date" ? condition.dateFrom.toISOString().slice(0, 10) : condition.filter}`
+          condition.filterType === "date" ? toYYYYMMDD(condition.dateFrom) : condition.filter}`
       }];
       break;
     case "greaterThanOrEqual":
@@ -59,9 +60,10 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
       if (condition.dateFrom.toDateString() === condition.dateTo.toDateString()) {
         condition.dateTo.setHours(23, 59, 59, 999);
       }
+      console.log(condition.dateFrom.toDateString(), condition.dateTo.toDateString());
       [expression, params] = [`${field} BETWEEN :dateFrom${index} AND :dateTo${index}`, {
-        ['dateFrom' + index]: condition.dateFrom.toISOString().slice(0, 10),
-        ['dateTo' + index]: condition.dateTo.toISOString().slice(0, 10)
+        ['dateFrom' + index]: condition.dateFrom,
+        ['dateTo' + index]: condition.dateTo
       }];
       break;
     case "empty":
@@ -105,17 +107,29 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
 
 
       if (query.query) {
-        // query.query = query.query.replace(" ", ":* & ");
-        // builder.where(`to_tsvector('english', ${tableName}.name) @@ to_tsquery('english', :query)`,
-        //   { query: query.query });
-        // ILIKE
         builder.where(`${tableName}.name ILIKE :query`, { query: `%${query.query}%` });
       }
+
+      const columns = new Map<string, ColumnType>();
+      repository.metadata.columns.forEach((column) => {
+        columns.set(column.propertyName, column.type);
+      });
 
       query.agGrid?.forEach((agGrid, index) => {
         const field = `${tableName}.${agGrid.field}`;
         const condition1 = agGrid.condition1;
         const condition2 = agGrid.condition2;
+
+        if (!columns.has(agGrid.field))
+          throw new BadRequestException(`Field ${agGrid.field} does not exist in ${tableName} table`);
+        // check if requested type and actual type are the same
+        if (condition1.filterType === "date" && columns.get(agGrid.field) !== "timestamp")
+          throw new BadRequestException(`Field ${agGrid.field} is not of type date`);
+        // else if (condition1.filterType === "number" && columns.get(agGrid.field) !== "number")
+        //   throw new BadRequestException(`Field ${agGrid.field} is not of type number`);
+        // else if (condition1.filterType === "text" && columns.get(agGrid.field) !== "string")
+        //   throw new BadRequestException(`Field ${agGrid.field} is not of type text`);
+
         if (condition2) {
           builder.andWhere(new Brackets((qb) => {
             composeQuery(qb, index, field, condition1);
