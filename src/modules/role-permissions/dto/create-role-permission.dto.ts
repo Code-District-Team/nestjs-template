@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsUUID } from "class-validator";
+import { IsArray, IsNotEmpty, IsUUID, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateRolePermissionDto {
   @IsNotEmpty()
@@ -6,6 +7,7 @@ export class CreateRolePermissionDto {
   roleId: string;
 
   @IsNotEmpty()
-  @IsUUID()
-  permissionId: string;
+  @IsArray()
+  @IsUUID('4', { each: true })
+  permissionIds: string[]
 }

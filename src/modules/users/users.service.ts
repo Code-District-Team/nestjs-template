@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import { v4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { LoginDto } from '../auth/dto/loginUser.dto';
-import { ILike, Repository, UpdateResult } from 'typeorm';
+import { ILike, In, Repository, UpdateResult } from 'typeorm';
 import { deleteObjProps, updateObjProps } from 'src/generalUtils/helper';
 import { EditContactDto } from './dto/editContactDetails.dto';
 import { Role } from '../roles/entities/role.entity';
@@ -24,6 +24,7 @@ import { MailService } from '../mail/mail.service';
 import { StatusEnum } from '../../common/enums/status.enum';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
 import { createSignedLink } from 'src/generalUtils/aws-config';
+import { AssignRolesDto } from "./dto/assign-roles.dto";
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -36,7 +37,8 @@ export class UsersService {
     private readonly roleRepository: Repository<Role>,
     private jwtService: JwtService,
     private mailService: MailService,
-  ) {}
+  ) {
+  }
 
   async updateProfile(user, userDto: EditUserDto) {
     const userData = await this.userRepository.findOneBy({ id: userDto.id });
@@ -82,7 +84,7 @@ export class UsersService {
       throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
     }
 
-    user.role = role;
+    user.roles = [role];
     try {
       await this.userRepository.save(user);
       return { message: 'Success' };
@@ -235,9 +237,10 @@ export class UsersService {
     newUser.mobilePhone = mobilePhone;
     if (!isPendingUser) {
       newUser.email = email;
-      newUser.role = await this.roleRepository.findOneBy({
-        name: RoleEnum.USER,
-      });
+      newUser.roles = [await this.roleRepository.findOne({
+        where: { name: RoleEnum.USER },
+        relations: ["permissions"]
+      })];
     }
     newUser.status = StatusEnum.ACTIVE;
 
@@ -260,7 +263,7 @@ export class UsersService {
 
   async validateUser(userDto: LoginDto): Promise<User> {
     const { email, password } = userDto;
-    const user = await this.userRepository.findOneBy({ email });
+    const user = await this.userRepository.findOne({ where: { email }, relations: ["roles", "roles.permissions"] });
 
     if (user && bcrypt.compareSync(password, user.password)) {
       return user;
@@ -294,6 +297,7 @@ export class UsersService {
       );
     }
   }
+
   async forgetPasswordUser(email: string): Promise<User> {
     const dbUser = await this.userRepository.findOneBy({ email });
     if (!dbUser) throw new NotFoundException('Email doest not Exists');
@@ -329,21 +333,20 @@ export class UsersService {
     }
   }
 
-  async inviteUser(email, roleId): Promise<string> {
-    const role = await this.roleRepository.findOneBy({ id: roleId });
+  async inviteUser(email: string, roleId: string): Promise<string> {
+    const [role, emailExists] = await Promise.all([
+      this.roleRepository.findOneBy({ id: roleId }),
+      this.userRepository.findOneBy({ email }),
+    ]);
     if (!role) {
       throw new NotFoundException('Role Not Found');
     }
-
-    const emailExists = await this.userRepository.findOneBy({ email });
-
     if (emailExists) {
       throw new HttpException('Email Already exists', HttpStatus.BAD_REQUEST);
     }
-
     const user = new User();
     user.email = email;
-    user.role = role;
+    user.roles = [role];
     const password = '123456';
     user.password = bcrypt.hashSync(password, bcrypt.genSaltSync());
     user.status = StatusEnum.PENDING;
@@ -406,11 +409,27 @@ export class UsersService {
       );
     }
   }
+
   async findAllRoles(): Promise<Role[]> {
     try {
       return await this.roleRepository.find();
     } catch (e) {
       throw new HttpException(e, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async assignRoles(userRoles: AssignRolesDto) {
+    const [user, roles] = await Promise.all([
+      this.userRepository.findOneBy({ id: userRoles.userId }),
+      this.roleRepository.find({ where: { id: In(userRoles.roleIds) } })
+    ]);
+    if (!user)
+      throw new NotFoundException('User not found');
+    if (!roles.length)
+      throw new NotFoundException('No roles found');
+    if (roles.length !== userRoles.roleIds.length)
+      throw new NotFoundException('Some roles not found');
+    user.roles = roles;
+    return this.userRepository.save(user);
   }
 }

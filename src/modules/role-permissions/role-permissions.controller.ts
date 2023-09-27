@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
 import { RolePermissionsService } from './role-permissions.service';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 
@@ -8,8 +8,10 @@ export class RolePermissionsController {
   }
 
   @Post()
-  create(@Body() createRolePermissionDto: CreateRolePermissionDto) {
-    return this.rolePermissionsService.create(createRolePermissionDto);
+  async create(@Body() createRolePermissionDto: CreateRolePermissionDto) {
+    const results = await this.rolePermissionsService.create(createRolePermissionDto);
+    if (!results) throw new BadRequestException('Role or permission not found');
+    return results;
   }
 
   @Get()
@@ -29,8 +31,8 @@ export class RolePermissionsController {
     }
   }
 
-  @Delete(':role-id/:permission-id')
-  remove(@Param() params: CreateRolePermissionDto) {
-    return this.rolePermissionsService.remove(params.roleId, params.permissionId);
+  @Delete(':role-id/:permission-ids') // role_id and comma separated permission_ids
+  remove(@Param('role-id') roleId: string, @Param('permission-ids') permissionIds: string) {
+    return this.rolePermissionsService.remove(roleId, permissionIds.split(','));
   }
 }

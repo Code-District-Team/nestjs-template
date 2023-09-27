@@ -15,8 +15,7 @@ export class UserRole {
   @Column({ type: "uuid" })
   roleId: string;
 
-  @ManyToOne(() => Role, (role) => role.rolePermissions)
+  @ManyToOne(() => Role)
   role: Role;
-
 
 }

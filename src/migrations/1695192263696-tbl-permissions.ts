@@ -25,6 +25,7 @@ export class TblPermissions1695192263696 implements MigrationInterface {
             name: 'code',
             type: 'varchar',
             length: '250',
+            isUnique: true,
           },
           {
             name: 'created_at',

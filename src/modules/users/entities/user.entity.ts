@@ -80,11 +80,11 @@ export class User {
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at' })
   deletedAt: string;
 
-  @ManyToOne(() => Role, (role) => role.users, { eager: true })
-  @JoinColumn({ name: 'role_id' })
-  role: Role;
+  // @ManyToOne(() => Role, (role) => role.users, { eager: true })
+  // @JoinColumn({ name: 'role_id' })
+  // role: Role;
 
-  @ManyToMany(() => Role, (role) => role.users)
+  @ManyToMany(() => Role)
   @JoinTable({
     name: 'user_roles',
     joinColumn: {

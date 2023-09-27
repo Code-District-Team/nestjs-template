@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { InjectRepository } from "@nestjs/typeorm";
@@ -11,10 +11,16 @@ export class PermissionsService {
   constructor(@InjectRepository(Permission) private permissionRepository: Repository<Permission>) {
   }
 
-  create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
-    return this.permissionRepository.save(
-      this.permissionRepository.create(createPermissionDto)
-    );
+  async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
+    try {
+      return await this.permissionRepository.save(
+        this.permissionRepository.create(createPermissionDto)
+      );
+    } catch (e) {
+      if (e.code === '23505') {
+        throw new BadRequestException('Permission already exists');
+      }
+    }
   }
 
   findAll(): Promise<Permission[]> {

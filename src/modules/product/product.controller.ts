@@ -2,12 +2,15 @@ import {
   Body,
   Controller,
   Delete,
-  Get, HttpCode, HttpStatus, Inject,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
   InternalServerErrorException,
   NotFoundException,
   Param,
   Patch,
-  Post, Query
+  Post
 } from '@nestjs/common';
 import { ProductService } from "./product.service";
 import { CreateProductDto } from "./dto/create-product.dto";
@@ -17,11 +20,11 @@ import { CustomPipe } from "../../pipe/customValidation.pipe";
 import { PaginateEntity } from "../../decorators/pagination.decorator";
 import { QueryCollateralTypeDto } from "../../generalUtils/global.dtos";
 import { Product } from "./entities/product.entity";
-import { CACHE_MANAGER, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { validationPipe } from "../../pipe/nest-validation.pipe";
-
-
+import { RolesPermissions } from "../../decorators/roles.decorator";
+import { PermissionEnum, RoleEnum } from "../../common/enums/role.enum";
 
 @Controller('product')
 export class ProductController {
@@ -44,6 +47,7 @@ export class ProductController {
     return custom;
   }
 
+  @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
   @HttpCode(HttpStatus.OK)
   @Post("/get")
   @PaginateEntity({ table: Product }, [

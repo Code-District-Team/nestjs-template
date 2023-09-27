@@ -7,13 +7,13 @@ export class RolePermission {
   @PrimaryColumn({ type: "uuid" })
   id: string;
 
-  @Column({ type: "uuid" })
+  @Column({ name: "role_id", type: "uuid" })
   roleId: string;
 
-  @ManyToOne(() => Role, (role) => role.rolePermissions)
+  @ManyToOne(() => Role)
   role: Role;
 
-  @Column({ type: "uuid" })
+  @Column({ name: "permission_id", type: "uuid" })
   permissionId: string;
 
   @ManyToOne(() => Permission)

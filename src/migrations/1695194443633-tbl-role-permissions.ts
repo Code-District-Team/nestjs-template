@@ -28,6 +28,14 @@ export class TblRolePermissions1695194443633 implements MigrationInterface {
           onDelete: 'CASCADE',
           onUpdate: 'CASCADE',
         },
+        {
+          name: 'fk_permission_id',
+          columnNames: ['permission_id'],
+          referencedTableName: 'permissions',
+          referencedColumnNames: ['id'],
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
+        }
       ],
       indices: [
         {

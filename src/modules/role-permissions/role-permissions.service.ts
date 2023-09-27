@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "../roles/entities/role.entity";
-import { DeleteResult, Repository } from "typeorm";
+import { DeleteResult, In, Repository } from "typeorm";
 import { Permission } from "../permissions/entities/permission.entity";
 import { RolePermission } from "./entities/role-permission.entity";
 
@@ -14,29 +14,28 @@ export class RolePermissionsService {
               @InjectRepository(RolePermission) private readonly rolePermissionRepository: Repository<RolePermission>) {
   }
 
-  async create(createRolePermissionDto: CreateRolePermissionDto): Promise<RolePermission> {
-    const [role, permission] = await Promise.all([
+  async create(createRolePermissionDto: CreateRolePermissionDto) { //: Promise<RolePermission> {
+    const [role, permissions] = await Promise.all([
       this.roleRepository.findOneBy({ id: createRolePermissionDto.roleId }),
-      this.permissionRepository.findOneBy({ id: createRolePermissionDto.permissionId })
+      this.permissionRepository.find({ where: { id: In(createRolePermissionDto.permissionIds) } })
     ]);
-    // go back to the controller and add a try catch block to handle the error
-    if (!role || !permission) return null;
-    const rolePermission = this.rolePermissionRepository.create({
-      roleId: role.id,
-      permissionId: permission.id
-    });
-    return this.rolePermissionRepository.save(rolePermission);
+    if (!role || !permissions || permissions.length !== createRolePermissionDto.permissionIds.length) return null;
+
+    const roles = new Role();
+    roles.id = createRolePermissionDto.roleId;
+    role.permissions = permissions;
+    return await this.roleRepository.save(role);
   }
 
   findAll(): Promise<RolePermission[]> {
-    return this.rolePermissionRepository.find({ relations: ['role', 'permission'] });
+    return this.rolePermissionRepository.find();
   }
 
   findOne(id: string): Promise<RolePermission[]> {
     return this.rolePermissionRepository.find({ where: { roleId: id }, relations: ['role', 'permission'] });
   }
 
-  remove(roleId: string, permissionId: string): Promise<DeleteResult> {
-    return this.rolePermissionRepository.delete({ roleId, permissionId });
+  remove(roleId: string, permissionId: string[]): Promise<DeleteResult> {
+    return this.rolePermissionRepository.delete({ roleId, permissionId: In(permissionId) });
   }
 }
