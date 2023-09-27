@@ -67,7 +67,8 @@ export class ConditionQueryDto {
   dateFrom: Date;
 
   @ValidateIf((o) => o.filterType === "date" && o.type === "inRange")
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   dateTo: Date;
 }
 
