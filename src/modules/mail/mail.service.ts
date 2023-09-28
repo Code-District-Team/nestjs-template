@@ -113,7 +113,7 @@ export class MailService {
                   <p>
                   Otherwise, click below to reset your password.
                   </p>
-                  <a class="reset-password-btn" style="color:#FFF;" href="http://${
+                  <a class="reset-password-btn" style="color:#FFF;" href="${
                     process.env.FRONTEND_URL
                   }/set-password/?token=${token}" target="_blank">Reset my Password</a>
              </div>
@@ -212,10 +212,7 @@ export class MailService {
                   <p>
                   Click below to set up your account.
                   </p>
-                  <a class="reset-password-btn" style="color:#FFF;" href="http://${
-                    process.env.FRONTEND_URL
-                  }/register
-        /?token=${token}" target="_blank">Accept Invite</a>
+                  <a class="reset-password-btn" style="color:#FFF;" href="${process.env.FRONTEND_URL}/register/?token=${token}&email=${user.email}" target="_blank">Accept Invite</a>
              </div>
              <div class="email-template-footer">
                   Copyright © ${new Date().getFullYear()}  CodeDistrict
