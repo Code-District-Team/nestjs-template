@@ -222,7 +222,7 @@ export class UsersService {
 
   async signUp(userdto: CreateUserDto) {
     const { firstName, lastName, email, password, mobilePhone } = userdto;
-    const user = await this.userRepository.findOneBy({ email });
+    const user = await this.userRepository.findOne({ where: { email }, relations: ['roles', 'roles.permissions'] });
 
     const isPendingUser = user && user.status === StatusEnum.PENDING;
 
