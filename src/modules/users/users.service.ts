@@ -224,11 +224,11 @@ export class UsersService {
     const { firstName, lastName, email, password, mobilePhone } = userdto;
     const user = await this.userRepository.findOneBy({ email });
 
-    const isPendingUser = user && user.status === StatusEnum.PENDING;
-
-    if (user && user.status === StatusEnum.ACTIVE) {
+    if (user) {
       throw new HttpException('Email Already Exists', HttpStatus.BAD_REQUEST);
     }
+
+    const isPendingUser = user && user.status === StatusEnum.PENDING;
 
     const newUser = isPendingUser ? user : new User();
 
