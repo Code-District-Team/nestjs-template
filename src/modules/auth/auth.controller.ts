@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { CustomPipe } from 'src/pipe/customValidation.pipe';
-import { CreateUserDto, InviteUserDto } from '../users/dto/createUser.dto';
+import { CreateUserDto } from '../users/dto/createUser.dto';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { LoginDto } from './dto/loginUser.dto';
@@ -27,12 +27,6 @@ export class AuthController {
   @UsePipes(CustomPipe)
   signUp(@Body() userDto: CreateUserDto) {
     return this.authService.signUp(userDto);
-  }
-
-  @Post("/invite-signup")
-  @UsePipes(CustomPipe)
-  inviteSignUp(@Body() userDto: CreateUserDto) {
-    return this.authService.inviteSignUp(userDto);
   }
 
   @Post('/signin')

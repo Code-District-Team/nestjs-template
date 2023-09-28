@@ -8,7 +8,6 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { Unique } from 'src/decorators/unique.decorator';
-import { OmitType } from "@nestjs/swagger";
 
 export class CreateUserDto {
   @IsString()
@@ -19,6 +18,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   lastName: string;
 
+  // @Unique('User')
   @IsString()
   @IsEmail()
   @IsNotEmpty()
@@ -35,7 +35,4 @@ export class CreateUserDto {
   @MaxLength(100)
   @MinLength(8)
   password: string;
-}
-
-export class InviteUserDto extends OmitType(CreateUserDto, ['email']) {
 }

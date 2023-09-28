@@ -1,7 +1,13 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException, } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { CreateUserDto, InviteUserDto } from '../users/dto/createUser.dto';
+import { CreateUserDto } from '../users/dto/createUser.dto';
 
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
@@ -10,7 +16,6 @@ import { jwtPayload } from './jwt-payload.interface';
 import * as bcrypt from 'bcryptjs';
 
 import { User } from '../users/entities/user.entity';
-import { StatusEnum } from "../../common/enums/status.enum";
 
 @Injectable()
 export class AuthService {
@@ -103,18 +108,5 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
-  }
-
-  async inviteSignUp(userDto: CreateUserDto) {
-    const user = await this.userService.findOneByEmail(userDto.email);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    user.firstName = userDto.firstName;
-    user.lastName = userDto.lastName;
-    user.mobilePhone = userDto.mobilePhone;
-    user.password = bcrypt.hashSync(userDto.password, bcrypt.genSaltSync());
-    user.status = StatusEnum.ACTIVE;
-    return this.userService.saveUser(user);
   }
 }
