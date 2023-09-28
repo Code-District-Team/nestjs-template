@@ -31,7 +31,7 @@ export class MailService {
     try {
       const newToken = await this.mailerService.sendMail({
         to: user.email,
-        from: `Code District Password Reset <${process.env.SMTP_EMAIL}>`, // override default from
+        from: `Code District Password Reset <${process.env.MAIL_USERNAME}>`, // override default from
         subject: 'Password Reset Request',
         html: `
       <!doctype html>
@@ -125,7 +125,6 @@ export class MailService {
       
       </html>`,
       });
-
       if (newToken) return 'success';
     } catch (err) {
       console.log(err);

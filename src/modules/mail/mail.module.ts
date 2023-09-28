@@ -3,6 +3,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 require('dotenv').config()
+
+console.log(process.env.MAIL_HOST, process.env.MAIL_PORT, process.env.MAIL_USERNAME, process.env.MAIL_PASSWORD);
 @Module({
   imports: [
     MailerModule.forRoot({
