@@ -37,7 +37,7 @@ export class RolesService {
   }
 
   findOne(id: string): Promise<Role> {
-    return this.roleRepository.findOne({ where: { id } });
+    return this.roleRepository.findOne({ where: { id }, relations: ["permissions"] });
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto) {
