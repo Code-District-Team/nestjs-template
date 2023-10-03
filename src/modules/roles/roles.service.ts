@@ -44,8 +44,9 @@ export class RolesService {
     const permissionIds = updateRoleDto.permissionIds;
     const role = await this.roleRepository.findOne({ where: { id } });
     const nameIsUnique = updateRoleDto.name ?
-      await this.roleRepository.findOne({ where: { name: updateRoleDto.name, id: Not(id) } }) : true;
-    if (!role || !nameIsUnique) return null;
+      await this.roleRepository.findOne({ where: { name: updateRoleDto.name, id: Not(id) } }) : false;
+    if (!role || nameIsUnique)
+      return null;
     const permissions = await this.permissionRepository.find({ where: { id: In(permissionIds) } })
     if (!permissions || permissions.length !== permissionIds.length)
       return null;
