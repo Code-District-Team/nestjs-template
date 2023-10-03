@@ -61,7 +61,6 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
       if (condition.dateFrom.toDateString() === condition.dateTo.toDateString()) {
         condition.dateTo.setHours(23, 59, 59, 999);
       }
-      console.log(condition.dateFrom.toDateString(), condition.dateTo.toDateString());
       [expression, params] = [`${field} BETWEEN :dateFrom${index} AND :dateTo${index}`, {
         ['dateFrom' + index]: condition.dateFrom,
         ['dateTo' + index]: condition.dateTo
@@ -76,7 +75,6 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     default:
       return;
   }
-  console.log({expression, params});
   if (operator === "AND")
     builder.andWhere(expression, params);
   else
@@ -89,6 +87,8 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
     descriptor.value = async function (...args: any[]) {
 
       const query: QueryCollateralTypeDto = args[0];
+
+      console.log(query.filters);
       const isInitialized = dataSource.isInitialized;
       if (!isInitialized) await dataSource.initialize();
 
@@ -117,30 +117,47 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
         columns.set(column.propertyName, column.type);
       });
 
-      query.agGrid?.forEach((agGrid, index) => {
-        const field = `${tableName}.${agGrid.field}`;
-        const condition1 = agGrid.condition1;
-        const condition2 = agGrid.condition2;
+      if (query.filterType === "ag-grid") {
+        query.agGrid?.forEach((agGrid, index) => {
+          const field = `${tableName}.${agGrid.field}`;
+          const condition1 = agGrid.condition1;
+          const condition2 = agGrid.condition2;
 
-        if (!columns.has(agGrid.field))
-          throw new BadRequestException(`Field ${agGrid.field} does not exist in ${tableName} table`);
-        // check if requested type and actual type are the same
-        if (condition1.filterType === "date" && columns.get(agGrid.field) !== "timestamp")
-          throw new BadRequestException(`Field ${agGrid.field} is not of type date`);
-        // else if (condition1.filterType === "number" && columns.get(agGrid.field) !== "number")
-        //   throw new BadRequestException(`Field ${agGrid.field} is not of type number`);
-        // else if (condition1.filterType === "text" && columns.get(agGrid.field) !== "string")
-        //   throw new BadRequestException(`Field ${agGrid.field} is not of type text`);
+          if (!columns.has(agGrid.field))
+            throw new BadRequestException(`Field ${agGrid.field} does not exist in ${tableName} table`);
+          // check if requested type and actual type are the same
+          if (condition1.filterType === "date" && columns.get(agGrid.field) !== "timestamp")
+            throw new BadRequestException(`Field ${agGrid.field} is not of type date`);
+          // else if (condition1.filterType === "number" && columns.get(agGrid.field) !== "number")
+          //   throw new BadRequestException(`Field ${agGrid.field} is not of type number`);
+          // else if (condition1.filterType === "text" && columns.get(agGrid.field) !== "string")
+          //   throw new BadRequestException(`Field ${agGrid.field} is not of type text`);
 
-        if (condition2) {
-          builder.andWhere(new Brackets((qb) => {
-            composeQuery(qb, index, field, condition1);
-            composeQuery(qb, index + 1000, field, condition2, agGrid.operator);
-          }));
-        } else {
-          composeQuery(builder, index, field, condition1);
-        }
-      });
+          if (condition2) {
+            builder.andWhere(new Brackets((qb) => {
+              composeQuery(qb, index, field, condition1);
+              composeQuery(qb, index + 1000, field, condition2, agGrid.operator);
+            }));
+          } else {
+            composeQuery(builder, index, field, condition1);
+          }
+        });
+      } else {
+        const keys = Object.keys(query.filters);
+        keys.forEach((key, index) => {
+          if (!query.filters[key]) return;
+          if (!columns.has(key))
+            throw new BadRequestException(`Field ${key} does not exist in ${tableName} table`);
+          const customAgGrid: ConditionQueryDto = {
+            filterType: columns.get(key) === "timestamp" ? "date" : "text",
+            type: columns.get(key) === "string" ? "contains" : "equals",
+            dateTo: null,
+            filter: query.filters[key][0],
+            dateFrom: query.filters[key][0],
+          };
+          composeQuery(builder, index, `${tableName}.${key}`, customAgGrid);
+        });
+      }
 
       if (query.sortBy)
         builder.orderBy(`${tableName}.${query.sortBy}`, query.sortOrder ?? "ASC");

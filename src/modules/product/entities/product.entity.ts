@@ -33,5 +33,5 @@ export class Product {
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
-  updatedAt: string;
+  updatedAt: Date;
 }

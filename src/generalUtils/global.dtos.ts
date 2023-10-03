@@ -41,7 +41,16 @@ export class QueryCollateralTypeDto {
   @MaxLength(100, { message: "query must not be greater than 100 characters." })
   query: string;
 
-  @IsOptional()
+  // @IsOptional()
+  @IsEnum(["ag-grid", "antd"], { message: "filterType must be one of the following ag-grid, antd" })
+  filterType: "ag-grid" | "antd";
+
+  @ValidateIf((o) => o.filterType === "antd")
+  @IsNotEmptyObject()
+  @IsObject()
+  filters: Object;
+
+  @ValidateIf((o) => o.filterType === "ag-grid")
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
