@@ -52,6 +52,7 @@ export class QueryCollateralTypeDto {
   filters: Object;
 
   @ValidateIf((o) => o.filterType === "ag-grid")
+  @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })

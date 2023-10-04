@@ -114,7 +114,11 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
 
       const columns = new Map<string, ColumnType>();
       repository.metadata.columns.forEach((column) => {
-        columns.set(column.propertyName, column.type);
+        // name [Function: String]
+        if (column.type instanceof Function) {
+          columns.set(column.propertyName, "text");
+        } else
+          columns.set(column.propertyName, column.type);
       });
 
       if (query.filterType === "ag-grid") {
@@ -150,10 +154,10 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
             throw new BadRequestException(`Field ${key} does not exist in ${tableName} table`);
           const customAgGrid: ConditionQueryDto = {
             filterType: columns.get(key) === "timestamp" ? "date" : "text",
-            type: columns.get(key) === "string" ? "contains" : "equals",
+            type: columns.get(key) === "text" ? "contains" : "equals",
             dateTo: null,
             filter: query.filters[key][0],
-            dateFrom: query.filters[key][0],
+            dateFrom: columns.get(key) === "timestamp" ? new Date(query.filters[key][0]) : null,
           };
           composeQuery(builder, index, `${tableName}.${key}`, customAgGrid);
         });
