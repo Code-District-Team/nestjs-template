@@ -142,7 +142,7 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
             composeQuery(builder, index, field, condition1);
           }
         });
-      } else {
+      } else if (query.filters) {
         const keys = Object.keys(query.filters);
         keys.forEach((key, index) => {
           if (!query.filters[key]) return;

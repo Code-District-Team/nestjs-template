@@ -46,8 +46,9 @@ export class QueryCollateralTypeDto {
   filterType: "ag-grid" | "antd";
 
   @ValidateIf((o) => o.filterType === "antd")
-  @IsNotEmptyObject()
+  @IsOptional()
   @IsObject()
+  @IsNotEmptyObject()
   filters: Object;
 
   @ValidateIf((o) => o.filterType === "ag-grid")
