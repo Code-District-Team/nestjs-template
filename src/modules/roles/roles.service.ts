@@ -50,12 +50,14 @@ export class RolesService {
     const permissions = await this.permissionRepository.find({ where: { id: In(permissionIds) } })
     if (!permissions || permissions.length !== permissionIds.length)
       return null;
-    return this.setRolePermissions(id, permissions);
+    return this.setRolePermissions(id, permissions, updateRoleDto.name);
   }
 
   // transaction
-  private async setRolePermissions(id: string, permissionIds: Permission[]) {
+  private async setRolePermissions(id: string, permissionIds: Permission[], name: string) {
     return await this.dataSource.transaction(async (manager) => {
+      if (name)
+        await manager.update('roles', { id }, { name });
       await manager.delete('role_permissions', { role_id: id });
       const role = new Role();
       role.id = id;

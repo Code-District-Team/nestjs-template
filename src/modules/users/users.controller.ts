@@ -128,7 +128,7 @@ export class UsersController {
 
   // upload picture
   @Post('/upload-picture')
-  @Roles(RoleEnum.USER)
+  @Roles(RoleEnum.USER, RoleEnum.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadPicture(@Req() request, @UploadedFile() file) {
