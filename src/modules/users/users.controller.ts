@@ -135,8 +135,8 @@ export class UsersController {
     if (request.fileValidationError) {
       throw new BadRequestException(request.fileValidationError);
     }
-    if (!file)
-      throw new BadRequestException("Couldn't update profile picture, only image of size 5MB is allowed");
+    // if (!file)
+    //   throw new BadRequestException("Couldn't update profile picture, only image of size 5MB is allowed");
     const updateResult = await this.userService.updateProfileURL(request.user.id, file.path);
     if (updateResult.affected) return file;
     throw new InternalServerErrorException("Something bad happened while updating profile picture");
