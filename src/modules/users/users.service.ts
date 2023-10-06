@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { EditUserDto } from './dto/editUser.dto';
@@ -17,7 +10,6 @@ import { User } from './entities/user.entity';
 import { LoginDto } from '../auth/dto/loginUser.dto';
 import { ILike, In, Repository, UpdateResult } from 'typeorm';
 import { deleteObjProps, updateObjProps } from 'src/generalUtils/helper';
-import { EditContactDto } from './dto/editContactDetails.dto';
 import { Role } from '../roles/entities/role.entity';
 import { RoleEnum } from 'src/common/enums/role.enum';
 import { JwtService } from '@nestjs/jwt';
@@ -26,6 +18,8 @@ import { StatusEnum } from '../../common/enums/status.enum';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
 import { createSignedLink } from 'src/generalUtils/aws-config';
 import { AssignRolesDto } from "./dto/assign-roles.dto";
+import { join } from "path";
+import * as fs from "fs";
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -434,6 +428,21 @@ export class UsersService {
     if (roles.length !== userRoles.roleIds.length)
       throw new NotFoundException('Some roles not found');
     user.roles = roles;
+    return this.userRepository.save(user);
+  }
+
+  deletePicture(user: User) {
+    // delete photo from public folder
+    if (!user.profileImageUrl)
+      throw new BadRequestException("Nothing to delete");
+    const filePath = join(process.cwd(), user.profileImageUrl);
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (err) {
+      }
+    }
+    user.profileImageUrl = null;
     return this.userRepository.save(user);
   }
 }

@@ -128,8 +128,8 @@ export class UsersController {
 
   // upload picture
   @Post('/upload-picture')
-  @Roles(RoleEnum.USER, RoleEnum.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(RoleEnum.USER, RoleEnum.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadPicture(@Req() request, @UploadedFile() file) {
     if (request.fileValidationError) {
@@ -140,6 +140,14 @@ export class UsersController {
     const updateResult = await this.userService.updateProfileURL(request.user.id, file.path);
     if (updateResult.affected) return file;
     throw new InternalServerErrorException("Something bad happened while updating profile picture");
+  }
+
+  @Delete('profile-picture')
+  @UseGuards(JwtAuthGuard)
+  deletePicture(@Req() request: any) {
+    console.log(request.user);
+    return this.userService.deletePicture(request.user);
+    return {};
   }
 
   @Post("/assign-roles")

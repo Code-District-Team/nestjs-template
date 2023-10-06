@@ -24,9 +24,7 @@ import { RolesModule } from './modules/roles/roles.module';
       isGlobal: true,
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "public"),
-      renderPath: "/public",
-      serveRoot: "/public",
+      rootPath: join(process.cwd(), 'public'),
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     TypeOrmModule.forRoot(seedSourceOptions),
