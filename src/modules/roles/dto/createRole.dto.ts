@@ -9,5 +9,5 @@ export class CreateRoleDto {
   @IsNotEmpty()
   @IsArray()
   @IsUUID('4', { each: true })
-  permissionIds: string[]
+  permissionIds: string[];
 }

@@ -10,7 +10,10 @@ import {
   NotFoundException,
   Param,
   Patch,
-  Post
+  Post,
+  Res,
+  UploadedFile,
+  UseInterceptors
 } from '@nestjs/common';
 import { ProductService } from "./product.service";
 import { CreateProductDto } from "./dto/create-product.dto";
@@ -25,6 +28,12 @@ import { Cache } from 'cache-manager';
 import { validationPipe } from "../../pipe/nest-validation.pipe";
 import { RolesPermissions } from "../../decorators/roles.decorator";
 import { PermissionEnum, RoleEnum } from "../../common/enums/role.enum";
+import { multerOptionsCSV, newLineToSpace } from "../../generalUtils/helper";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ExportProductDto } from "./dto/export-product.dto";
+import { pipeline } from 'stream/promises';
+import * as csv from 'csv';
+
 
 @Controller('product')
 export class ProductController {
@@ -50,18 +59,32 @@ export class ProductController {
   @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
   @HttpCode(HttpStatus.OK)
   @Post("/get")
-  @PaginateEntity({ table: Product }, [
+  @PaginateEntity({ table: Product }, [])
+  async getAllProducts(@Body(validationPipe) query: QueryCollateralTypeDto) {
+  }
 
-  ])
-  async getAllProducts(@Body(validationPipe) query: QueryCollateralTypeDto) {}
+  // bulk import products (csv) upload
+  @Post("bulk-import")
+  @UseInterceptors(FileInterceptor("file", multerOptionsCSV))
+  async bulkImportProducts(@UploadedFile() file: Express.Multer.File) {
+    const products = await this.productService.bulkImportProducts(file);
+    if (products) return products;
+    throw new InternalServerErrorException("Something went wrong");
+  }
 
-  // get product by id
-  // @Get(":id")
-  // async getProductById(@Param(CustomPipe) deleteProductDto: DeleteProductDto) {
-  //   const product = await this.productService.getById(deleteProductDto.id);
-  //   if (product) return product;
-  //   throw new NotFoundException("Product not found");
-  // }
+  @Post("bulk-export")
+  @HttpCode(HttpStatus.OK)
+  async bulkExportProducts(@Body(validationPipe) { ids }: ExportProductDto, @Res() res: any) {
+    const products = await this.productService.bulkExportProducts(ids);
+    res.set('Content-type', 'application/csv');
+    res.attachment(`Products.csv`);
+    return await pipeline(
+      products,
+      newLineToSpace,
+      csv.stringify({ header: true, quoted: true, encoding: 'utf8' }),
+      res
+    );
+  }
 
   // add product
   @Post()
