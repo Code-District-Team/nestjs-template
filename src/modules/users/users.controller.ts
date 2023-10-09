@@ -135,8 +135,9 @@ export class UsersController {
     if (request.fileValidationError) {
       throw new BadRequestException(request.fileValidationError);
     }
-    // if (!file)
-    //   throw new BadRequestException("Couldn't update profile picture, only image of size 5MB is allowed");
+    if (!file)
+      throw new BadRequestException("Something bad happened on our end, please try again.");
+    file.path = file.path.replace("public/", "");
     const updateResult = await this.userService.updateProfileURL(request.user.id, file.path);
     if (updateResult.affected) return file;
     throw new InternalServerErrorException("Something bad happened while updating profile picture");
@@ -147,7 +148,6 @@ export class UsersController {
   deletePicture(@Req() request: any) {
     console.log(request.user);
     return this.userService.deletePicture(request.user);
-    return {};
   }
 
   @Post("/assign-roles")

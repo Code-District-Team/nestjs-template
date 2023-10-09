@@ -104,6 +104,7 @@ export class UsersService {
   }
 
   updateProfileURL(userId: string, profileImageUrl: string): Promise<UpdateResult> {
+    profileImageUrl = profileImageUrl.replace("public/", "");
     return this.userRepository.update(userId, { profileImageUrl });
   }
 

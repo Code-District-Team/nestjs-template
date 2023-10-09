@@ -163,10 +163,12 @@ export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = [
         });
       }
 
+      query.sortBy = query.sortBy ?? "created_at";
       if (query.sortBy)
         builder.orderBy(`${tableName}.${query.sortBy}`, query.sortOrder ?? "ASC");
 
       builder.limit(query.limit).offset((query.page - 1) * query.limit);
+
 
       const results = await builder.getManyAndCount();
 
