@@ -2,6 +2,12 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 
 @Entity("permissions")
 export class Permission {
+
+  constructor(name: string, code: string) {
+    this.name = name;
+    this.code = code;
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
