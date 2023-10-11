@@ -54,15 +54,19 @@ export class RolesService {
   }
 
   // transaction
-  private async setRolePermissions(id: string, permissionIds: Permission[], name: string) {
-    return await this.dataSource.transaction(async (manager) => {
+  private setRolePermissions(id: string, permissionIds: Permission[], name: string) {
+    return this.dataSource.transaction(async (manager) => {
       if (name)
         await manager.update('roles', { id }, { name });
       await manager.delete('role_permissions', { role_id: id });
       const role = new Role();
       role.id = id;
       role.permissions = permissionIds;
-      return await manager.save(role);
+      const result = await manager.save(role);
+      return name ? {
+        name,
+        ...result
+      } : result
     });
   }
 
