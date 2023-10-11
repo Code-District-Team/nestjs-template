@@ -10,12 +10,12 @@ export class AssignPermissions1697029755004 implements MigrationInterface {
     const adminRol: Role = await queryRunner.manager.getRepository("roles")
       .findOne({ where: { name: "ADMIN" } }) as Role;
     adminRol.permissions = await queryRunner.manager.getRepository("permissions")
-      .find({ where: { name: [...this.adminPermissions] } }) as Permission[];
+      .find({ where: { code: [...this.adminPermissions] } }) as Permission[];
     await queryRunner.manager.save(adminRol);
     const userRol: Role = await queryRunner.manager.getRepository("roles")
       .findOne({ where: { name: "User" } }) as Role;
     userRol.permissions = await queryRunner.manager.getRepository("permissions")
-      .find({ where: { name: [...this.userPermissions] } }) as Permission[];
+      .find({ where: { code: [...this.userPermissions] } }) as Permission[];
     await queryRunner.manager.save(userRol);
   }
 
