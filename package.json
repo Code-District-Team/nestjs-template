@@ -54,6 +54,8 @@
     "csv-write-stream": "^2.0.0",
     "csv-writer": "^1.6.0",
     "csvtojson": "^2.0.10",
+    "html-pdf-node": "^1.0.8",
+    "jspdf": "^2.5.1",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.4",
     "multer": "^1.4.5-lts.1",
