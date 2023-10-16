@@ -56,6 +56,16 @@ export class ProductController {
     return custom;
   }
 
+  @Get("export-pdf/:type?")
+  async exportPdf(@Res() res: any, @Param("type") type: string) {
+    let pdfData: string;
+    if (type === "html") pdfData = await this.productService.exportPdfHtml();
+    else pdfData = await this.productService.exportPdf();
+    res.set('Content-type', 'application/pdf');
+    res.attachment(`Products.pdf`);
+    res.send(pdfData);
+  }
+
   @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
   @HttpCode(HttpStatus.OK)
   @Post("/get")
