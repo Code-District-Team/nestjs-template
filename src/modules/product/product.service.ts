@@ -108,10 +108,14 @@ export class ProductService {
 
     doc.addPage();
     // add image from public folder
-    const imgData = 'data:image/jpeg;base64,' +
-      fs.readFileSync('/home/powers/WebstormProjects/nest_template/public/73f02330-a200-43f4-81f9-5f7bc73e18a9.jpeg', { encoding: 'base64' });
-    doc.addImage(imgData, 'JPEG', 10, 10, 50, 50);
+    // const imgData = 'data:image/jpeg;base64,' +
+    //   fs.readFileSync('/home/powers/WebstormProjects/nest_template/public/73f02330-a200-43f4-81f9-5f7bc73e18a9.jpeg', { encoding: 'base64' });
+    // doc.addImage(imgData, 'JPEG', 10, 10, 50, 50);
     // send stream to client
+    const img = 'data:image/jpeg;base64,' +
+      fs.readFileSync('/home/powers/WebstormProjects/nest_template/public/73f02330-a200-43f4-81f9-5f7bc73e18a9.jpeg', { encoding: 'base64' });
+    doc.addImage(img, 'JPEG', 10, 10, 500, 500);
+
     return doc.output();
   }
 
@@ -124,6 +128,10 @@ export class ProductService {
       file.content += `<tr><td>${index + 1}</td><td>${product.name}</td><td>${product.price}</td><td>${product.quantity}</td><td>${product.createdAt.toLocaleDateString()}</td></tr>`;
     });
     file.content += "</tbody></table></body></html>";
+    // add image from public folder
+    const imgData = 'data:image/jpeg;base64,' +
+      fs.readFileSync('/home/powers/WebstormProjects/nest_template/public/73f02330-a200-43f4-81f9-5f7bc73e18a9.jpeg', { encoding: 'base64' });
+    file.content += `<img src="${imgData}" alt="image" />`;
     return html_to_pdf.generatePdf(file, options)
   }
 
