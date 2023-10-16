@@ -81,4 +81,8 @@ export class ProductService {
       .where("product.id IN (:...ids)", { ids })
       .stream();
   }
+
+  async getAllProductsWithoutPagination() {
+    return await this.productRepository.find();
+  }
 }
