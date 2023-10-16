@@ -82,7 +82,7 @@ export class ProductService {
       .stream();
   }
 
-  async getAllProductsWithoutPagination() {
-    return await this.productRepository.find();
+  getAllProductsWithoutPagination() {
+    return this.productRepository.find();
   }
 }

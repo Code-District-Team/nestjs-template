@@ -57,8 +57,8 @@ export class ProductController {
   }
 
   @Post("/get-all")
-  async getAllProductsWithoutPagination() {
-    return await this.productService.getAllProductsWithoutPagination();
+  getAllProductsWithoutPagination() {
+    return this.productService.getAllProductsWithoutPagination();
   }
 
   @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
