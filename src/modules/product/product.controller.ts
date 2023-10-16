@@ -56,7 +56,7 @@ export class ProductController {
     return custom;
   }
 
-  @Post("/get-all")
+  @Get("/get-all")
   getAllProductsWithoutPagination() {
     return this.productService.getAllProductsWithoutPagination();
   }
