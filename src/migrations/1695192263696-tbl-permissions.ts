@@ -38,7 +38,8 @@ export class TblPermissions1695192263696 implements MigrationInterface {
             default: 'now()',
           },
         ]
-      })
+      }),
+      true
     );
   }
 

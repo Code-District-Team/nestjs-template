@@ -34,6 +34,7 @@ export class createRolesTable1680168707214 implements MigrationInterface {
           },
         ],
       }),
+      true
     );
   }
 

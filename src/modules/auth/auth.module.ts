@@ -9,10 +9,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { jwtConstants } from 'src/generalUtils/constant';
+import { TenantModule } from "../tenant/tenant.module";
 
 @Module({
   imports: [
     UsersModule,
+    TenantModule,
     MailModule,
     PassportModule,
     JwtModule.register({

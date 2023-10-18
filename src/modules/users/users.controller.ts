@@ -33,6 +33,8 @@ import { createSignedLink } from 'src/generalUtils/aws-config';
 import { FileInterceptor } from "@nestjs/platform-express";
 import { multerOptions } from "../../generalUtils/helper";
 import { AssignRolesDto } from "./dto/assign-roles.dto";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { User } from "./entities/user.entity";
 
 const bucketName = process.env.AWS_BUCKET;
 

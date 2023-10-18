@@ -15,8 +15,8 @@ import { HeroModule } from './modules/hero/hero.module';
 import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
-import { RolesController } from './modules/roles/roles.controller';
 import { RolesModule } from './modules/roles/roles.module';
+import { TenantModule } from './modules/tenant/tenant.module';
 
 @Module({
   imports: [
@@ -37,6 +37,7 @@ import { RolesModule } from './modules/roles/roles.module';
     PermissionsModule,
     RolePermissionsModule,
     RolesModule,
+    TenantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

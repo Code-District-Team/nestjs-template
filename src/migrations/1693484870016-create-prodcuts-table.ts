@@ -42,7 +42,8 @@ export class createProdcutsTable1693484870016 implements MigrationInterface {
             default: 'now()',
           },
         ]
-      })
+      }),
+      true
     );
   }
 

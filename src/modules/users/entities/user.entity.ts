@@ -4,13 +4,16 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn, JoinTable, ManyToMany,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { Role } from '../../roles/entities/role.entity';
+import { Tenant } from "../../tenant/entities/tenant.entity";
 
 @Entity({ name: 'users' })
 export class User {
@@ -80,9 +83,9 @@ export class User {
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at' })
   deletedAt: string;
 
-  // @ManyToOne(() => Role, (role) => role.users, { eager: true })
-  // @JoinColumn({ name: 'role_id' })
-  // role: Role;
+  @ManyToOne(() => Tenant)
+  @JoinColumn({ name: 'tenant_id' })
+  tenant: Tenant;
 
   @ManyToMany(() => Role)
   @JoinTable({

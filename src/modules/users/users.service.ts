@@ -1,6 +1,6 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from './dto/createUser.dto';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { CreateTenantDto } from './dto/createUser.dto';
 import { EditUserDto } from './dto/editUser.dto';
 
 import * as bcrypt from 'bcryptjs';
@@ -8,7 +8,7 @@ import * as moment from 'moment';
 import { v4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { LoginDto } from '../auth/dto/loginUser.dto';
-import { ILike, In, Repository, UpdateResult } from 'typeorm';
+import { DataSource, ILike, In, Repository, UpdateResult } from 'typeorm';
 import { deleteObjProps, updateObjProps } from 'src/generalUtils/helper';
 import { Role } from '../roles/entities/role.entity';
 import { RoleEnum } from 'src/common/enums/role.enum';
@@ -20,6 +20,7 @@ import { createSignedLink } from 'src/generalUtils/aws-config';
 import { AssignRolesDto } from "./dto/assign-roles.dto";
 import { join } from "path";
 import * as fs from "fs";
+import { Tenant } from "../tenant/entities/tenant.entity";
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -32,6 +33,8 @@ export class UsersService {
     private readonly roleRepository: Repository<Role>,
     private jwtService: JwtService,
     private mailService: MailService,
+    @InjectDataSource()
+    private dataSource: DataSource
   ) {
   }
 
@@ -215,45 +218,33 @@ export class UsersService {
     return resData;
   }
 
-  async signUp(userdto: CreateUserDto) {
-    const { firstName, lastName, email, password, mobilePhone } = userdto;
-    const user = await this.userRepository.findOne({ where: { email }, relations: ['roles', 'roles.permissions'] });
-
-    const isPendingUser = user && user.status === StatusEnum.PENDING;
-
-    if (user && user.status === StatusEnum.ACTIVE) {
-      throw new HttpException('Email Already Exists', HttpStatus.BAD_REQUEST);
-    }
-
-    const newUser = isPendingUser ? user : new User();
-
-    newUser.firstName = firstName;
-    newUser.lastName = lastName;
-    newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync());
-    newUser.mobilePhone = mobilePhone;
-    if (!isPendingUser) {
-      newUser.email = email;
-      const role = await this.roleRepository.findOne({
-        where: { name: RoleEnum.USER },
+  async signUp(userDto: CreateTenantDto) {
+    const { firstName, lastName, companyEmail, password, mobilePhone } = userDto;
+    const user = await this.userRepository.findOne({
+      where: { email: companyEmail }
+    });
+    if (user)
+      throw new HttpException('Email Already exists', HttpStatus.BAD_REQUEST);
+    return this.dataSource.transaction(async (manager) => {
+      const tenant = new Tenant();
+      tenant.companyName = userDto.companyName;
+      tenant.companyEmail = userDto.companyEmail;
+      tenant.companyWebsite = userDto.companyWebsite;
+      await manager.save(tenant);
+      const user = new User();
+      user.firstName = userDto.firstName;
+      user.lastName = userDto.lastName;
+      user.email = userDto.companyEmail;
+      user.mobilePhone = userDto.mobilePhone;
+      user.password = bcrypt.hashSync(userDto.password, bcrypt.genSaltSync());
+      user.status = StatusEnum.ACTIVE;
+      user.roles = [await this.roleRepository.findOne({
+        where: { name: RoleEnum.ADMIN },
         relations: ["permissions"]
-      });
-      if (!role)
-        throw new BadRequestException("This role does not exist.")
-      newUser.roles = [role];
-    }
-    newUser.status = StatusEnum.ACTIVE;
-
-    try {
-      isPendingUser
-        ? await this.userRepository.upsert(newUser, ['email'])
-        : await this.userRepository.save(newUser);
-      return newUser;
-    } catch (error) {
-      throw new HttpException(
-        `Error saving database ${error}`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+      })];
+      user.tenant = tenant;
+      return manager.save(user);
+    });
   }
 
   async findOneByEmail(email) {
