@@ -35,6 +35,7 @@ import { multerOptions } from "../../generalUtils/helper";
 import { AssignRolesDto } from "./dto/assign-roles.dto";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { User } from "./entities/user.entity";
+import { CurrentUser } from "../../decorators/current-user.decorator";
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -57,8 +58,8 @@ export class UsersController {
   @Get('/get-all')
   // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   // @UseGuards(JwtAuthGuard, RolesGuard)
-  getUsers(@Query() getUsersDto: GetUserRequestDto2) {
-    return this.userService.getAllUsers(getUsersDto);
+  getUsers(@Query() getUsersDto: GetUserRequestDto2, @CurrentUser() user: User) {
+    return this.userService.getAllUsers(getUsersDto, user.tenant);
   }
 
   @Get('/me')
@@ -120,10 +121,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   async forgetPassword(
     @Body(ValidationPipe) inviteUserDto: InviteUserDto,
+    @CurrentUser() user: User,
   ): Promise<{ message: any }> {
     const status = await this.userService.inviteUser(
       inviteUserDto.email,
       inviteUserDto.roleId,
+      user.tenant
     );
     return { message: status };
   }

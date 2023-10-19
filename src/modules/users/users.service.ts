@@ -21,6 +21,8 @@ import { AssignRolesDto } from "./dto/assign-roles.dto";
 import { join } from "path";
 import * as fs from "fs";
 import { Tenant } from "../tenant/entities/tenant.entity";
+import { GetUserRequestDto2 } from "./dto/getUsers.dto";
+import { FindManyOptions } from "typeorm/find-options/FindManyOptions";
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -143,38 +145,33 @@ export class UsersService {
     };
   }
 
-  async getAllUsers(filters) {
+  async getAllUsers(filters: GetUserRequestDto2, tenant: Tenant) {
     const { email, firstName, lastName, pageNumber, recordsPerPage } = filters;
 
-    let resData;
+    let resData: { data: any; total?: number; };
 
     let skip = +(pageNumber - 1) * +recordsPerPage;
 
-    const [data, total] = await this.userRepository.findAndCount({
+    const where = { tenant };
+    if (firstName)
+      where['firstName'] = ILike(`%${firstName}%`);
+    if (lastName)
+      where['lastName'] = ILike(`%${lastName}%`);
+    if (email)
+      where['email'] = ILike(`%${email}%`);
+    const options: FindManyOptions<User> = {
       order: {
         id: 'DESC',
       },
-      ...(pageNumber &&
-        recordsPerPage && {
-          skip: skip,
-          take: recordsPerPage,
-        }),
-      ...(firstName && {
-        where: {
-          firstName: ILike(`%${firstName}%`),
-        },
-      }),
-      ...(lastName && {
-        where: {
-          lastName: ILike(`%${lastName}%`),
-        },
-      }),
-      ...(email && {
-        where: {
-          email: ILike(`%${email}%`),
-        },
-      }),
-    });
+      where: where,
+    }
+    if (skip)
+      options.skip = skip;
+    if (recordsPerPage)
+      options.take = recordsPerPage;
+
+    const [data, total] = await this.userRepository.findAndCount(options);
+
     resData = {
       data,
       total,
@@ -219,9 +216,8 @@ export class UsersService {
   }
 
   async signUp(userDto: CreateTenantDto) {
-    const { firstName, lastName, companyEmail, password, mobilePhone } = userDto;
     const user = await this.userRepository.findOne({
-      where: { email: companyEmail }
+      where: { email: userDto.companyEmail }
     });
     if (user)
       throw new HttpException('Email Already exists', HttpStatus.BAD_REQUEST);
@@ -323,7 +319,7 @@ export class UsersService {
     }
   }
 
-  async inviteUser(email: string, roleId: string): Promise<string> {
+  async inviteUser(email: string, roleId: string, tenant: Tenant): Promise<string> {
     const [role, emailExists] = await Promise.all([
       this.roleRepository.findOneBy({ id: roleId }),
       this.userRepository.findOneBy({ email }),
@@ -337,6 +333,7 @@ export class UsersService {
     const user = new User();
     user.email = email;
     user.roles = [role];
+    user.tenant = tenant;
     const password = '123456';
     user.password = bcrypt.hashSync(password, bcrypt.genSaltSync());
     user.status = StatusEnum.PENDING;
