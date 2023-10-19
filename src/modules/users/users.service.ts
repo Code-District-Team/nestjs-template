@@ -8,7 +8,7 @@ import * as moment from 'moment';
 import { v4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { LoginDto } from '../auth/dto/loginUser.dto';
-import { DataSource, ILike, In, Repository, UpdateResult } from 'typeorm';
+import { DataSource, ILike, In, Not, Repository, UpdateResult } from 'typeorm';
 import { deleteObjProps, updateObjProps } from 'src/generalUtils/helper';
 import { Role } from '../roles/entities/role.entity';
 import { RoleEnum } from 'src/common/enums/role.enum';
@@ -145,25 +145,23 @@ export class UsersService {
     };
   }
 
-  async getAllUsers(filters: GetUserRequestDto2, tenant: Tenant) {
+  async getAllUsers(filters: GetUserRequestDto2, user: User) {
     const { email, firstName, lastName, pageNumber, recordsPerPage } = filters;
-
-    let resData: { data: any; total?: number; };
-
     let skip = +(pageNumber - 1) * +recordsPerPage;
-
-    const where = { tenant };
+    const where = { tenantId: user.tenant.id, email: Not(user.email) };
     if (firstName)
       where['firstName'] = ILike(`%${firstName}%`);
     if (lastName)
       where['lastName'] = ILike(`%${lastName}%`);
     if (email)
       where['email'] = ILike(`%${email}%`);
+    console.log({ where });
     const options: FindManyOptions<User> = {
       order: {
         id: 'DESC',
       },
       where: where,
+      relations: ['roles']
     }
     if (skip)
       options.skip = skip;
@@ -171,15 +169,10 @@ export class UsersService {
       options.take = recordsPerPage;
 
     const [data, total] = await this.userRepository.findAndCount(options);
-
-    resData = {
+    return {
       data,
       total,
     };
-    resData?.data?.map((user) => {
-      return user;
-    });
-    return resData;
   }
 
   async findAll(pageNumber, recordsPerPage) {

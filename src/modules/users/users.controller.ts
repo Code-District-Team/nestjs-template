@@ -59,7 +59,8 @@ export class UsersController {
   // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
   // @UseGuards(JwtAuthGuard, RolesGuard)
   getUsers(@Query() getUsersDto: GetUserRequestDto2, @CurrentUser() user: User) {
-    return this.userService.getAllUsers(getUsersDto, user.tenant);
+    console.log({getUsersDto})
+    return this.userService.getAllUsers(getUsersDto, user);
   }
 
   @Get('/me')

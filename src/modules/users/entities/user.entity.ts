@@ -87,6 +87,9 @@ export class User {
   @JoinColumn({ name: 'tenant_id' })
   tenant: Tenant;
 
+  @Column({ name: 'tenant_id', nullable: true })
+  tenantId: string;
+
   @ManyToMany(() => Role)
   @JoinTable({
     name: 'user_roles',

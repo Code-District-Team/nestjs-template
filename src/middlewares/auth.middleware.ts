@@ -33,21 +33,13 @@ export class AuthMiddleware implements NestMiddleware {
       throw new HttpException("Email is required, please login again", HttpStatus.UNAUTHORIZED);
 
     const queryBuilder: SelectQueryBuilder<User> = this.userRepository.createQueryBuilder("user");
-    const selects: string[] = [
-      "user.id",
-      "user.firstName",
-      "user.lastName",
-      "user.email",
-      "user.status",
-      "user.rolesId",
-    ];
-    queryBuilder.innerJoin("user.tenant", "tenant");
-    selects.push("tenant");
+    const selects: string[] = ["user", "tenant"];
+    queryBuilder.innerJoinAndSelect("user.tenant", "tenant");
+    queryBuilder.where("user.email = :email", { email });
     user = await queryBuilder.select(selects).getOne();
-
+    console.log({ user });
     if (!user)
       throw new HttpException("User not found", HttpStatus.UNAUTHORIZED);
-
     req.body = {
       ...req.body,
       user: user,

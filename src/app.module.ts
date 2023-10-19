@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -17,6 +17,9 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
 import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { TenantModule } from './modules/tenant/tenant.module';
+import { User } from "./modules/users/entities/user.entity";
+import { AuthMiddleware } from "./middlewares/auth.middleware";
+import { UsersController } from "./modules/users/users.controller";
 
 @Module({
   imports: [
@@ -28,6 +31,7 @@ import { TenantModule } from './modules/tenant/tenant.module';
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     TypeOrmModule.forRoot(seedSourceOptions),
+    TypeOrmModule.forFeature([User]),
     UsersModule,
     AuthModule,
     MailModule,
@@ -43,7 +47,9 @@ import { TenantModule } from './modules/tenant/tenant.module';
   providers: [AppService],
 })
 export class AppModule {
-
-
-
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes(UsersController);
+  }
 }
