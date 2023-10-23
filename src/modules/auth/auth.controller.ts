@@ -25,12 +25,20 @@ import { ApiBody, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiTags } from 
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @ApiOperation({ summary: "Sign up" })
+  @ApiOperation({ summary: "Sign up Tenant" })
   @ApiBody({ type: CreateTenantDto })
   @Post('/signup')
   @UsePipes(CustomPipe)
   signUp(@Body() userDto: CreateTenantDto) {
     return this.authService.signUp(userDto);
+  }
+
+  @ApiOperation({ summary: "Sign up User" })
+  @ApiBody({ type: CreateUserDto })
+  @Post('/signup-user')
+  @UsePipes(CustomPipe)
+  signUpUser(@Body() userDto: CreateUserDto) {
+    // return this.authService.signUp(userDto);
   }
 
   @ApiOperation({ summary: "Sign in" })

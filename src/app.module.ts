@@ -17,15 +17,14 @@ import { RolePermissionsModule } from './modules/role-permissions/role-permissio
 import { RolesModule } from './modules/roles/roles.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { User } from "./modules/users/entities/user.entity";
-import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { UsersController } from "./modules/users/users.controller";
 import { ProductController } from "./modules/product/product.controller";
 import { PermissionsController } from "./modules/permissions/permissions.controller";
 import { TenantController } from "./modules/tenant/tenant.controller";
 import { UserRolesController } from "./modules/user-roles/user-roles.controller";
 import { RolesController } from "./modules/roles/roles.controller";
-import { RolesPermissions } from "./decorators/roles.decorator";
 import { RolePermissionsController } from "./modules/role-permissions/role-permissions.controller";
+import { AuthTenantMiddleware } from "./middlewares/auth-tenant.middleware";
 
 @Module({
   imports: [
@@ -54,7 +53,7 @@ import { RolePermissionsController } from "./modules/role-permissions/role-permi
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(AuthMiddleware)
+      .apply(AuthTenantMiddleware)
       .forRoutes(UsersController, ProductController, PermissionsController, TenantController, UserRolesController,
         RolesController, RolePermissionsController);
   }

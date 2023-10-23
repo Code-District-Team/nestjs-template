@@ -7,7 +7,7 @@ import { User } from "../modules/users/entities/user.entity";
 
 
 @Injectable()
-export class AuthMiddleware implements NestMiddleware {
+export class AuthTenantMiddleware implements NestMiddleware {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>
@@ -15,6 +15,7 @@ export class AuthMiddleware implements NestMiddleware {
   }
 
   async use(req: Request, res: Response, next: NextFunction) {
+    let user: User;
     const { rawHeaders, headers } = req;
     const token = headers.authorization?.split(" ");
 
@@ -32,9 +33,10 @@ export class AuthMiddleware implements NestMiddleware {
       throw new HttpException("Email is required, please login again", HttpStatus.UNAUTHORIZED);
 
     const queryBuilder: SelectQueryBuilder<User> = this.userRepository.createQueryBuilder("user");
-    const selects: string[] = ["user"];
+    const selects: string[] = ["user", "tenant"];
+    queryBuilder.innerJoinAndSelect("user.tenant", "tenant");
     queryBuilder.where("user.email = :email", { email });
-    const user = await queryBuilder.select(selects).getOne();
+    user = await queryBuilder.select(selects).getOne();
     console.log({ user });
     if (!user)
       throw new HttpException("User not found", HttpStatus.UNAUTHORIZED);
