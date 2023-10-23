@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
 import { RolePermissionsService } from './role-permissions.service';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Role-Permissions')
+@ApiBearerAuth('JWT-auth')
 @Controller('role-permissions')
 export class RolePermissionsController {
   constructor(private readonly rolePermissionsService: RolePermissionsService) {
@@ -22,13 +25,6 @@ export class RolePermissionsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.rolePermissionsService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string) {
-    return {
-      message: `We can't update a role permission. But you can delete it and create a new one.`
-    }
   }
 
   @Delete(':role-id/:permission-ids') // role_id and comma separated permission_ids

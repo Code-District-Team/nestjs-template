@@ -10,12 +10,15 @@ import { User } from '../../users/entities/user.entity';
 import { RoleEnum } from '../../../common/enums/role.enum';
 import { RolePermission } from "../../role-permissions/entities/role-permission.entity";
 import { Permission } from "../../permissions/entities/permission.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity({ name: 'roles' })
 export class Role {
+  @ApiProperty({ type: String })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({ type: String })
   @Column({
     type: 'varchar',
     default: RoleEnum.USER,
@@ -25,6 +28,7 @@ export class Role {
   // @OneToMany(() => User, (user) => user.role)
   // users: User[];
 
+  @ApiProperty({ type: [Permission] })
   @ManyToMany(type => Permission)
   @JoinTable({
     name: 'role_permissions',
@@ -39,6 +43,7 @@ export class Role {
   })
   permissions: Permission[];
 
+  @ApiProperty({ type: Date })
   @CreateDateColumn({
     type: 'timestamp',
     name: 'created_at',
@@ -46,6 +51,7 @@ export class Role {
   })
   createdAt: Date;
 
+  @ApiProperty({ type: Date })
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updatedAt: string;
 }

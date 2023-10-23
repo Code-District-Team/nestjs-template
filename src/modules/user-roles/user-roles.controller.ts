@@ -1,7 +1,10 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
 import { UserRolesService } from './user-roles.service';
 import { CreateUserRoleDto } from './dto/create-user-role.dto';
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
+@ApiTags("User-Roles")
+@ApiBearerAuth('JWT-auth')
 @Controller('user-roles')
 export class UserRolesController {
   constructor(private readonly userRolesService: UserRolesService) {

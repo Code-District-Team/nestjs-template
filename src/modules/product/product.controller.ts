@@ -33,34 +33,47 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { ExportProductDto } from "./dto/export-product.dto";
 import { pipeline } from 'stream/promises';
 import * as csv from 'csv';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 
+@ApiTags('Product')
+@ApiBearerAuth('JWT-auth')
 @Controller('product')
 export class ProductController {
 
   constructor(private readonly productService: ProductService, @Inject(CACHE_MANAGER) private cacheManager: Cache) {
   }
 
-  @Get("test")
+  @ApiOperation({ summary: "Test cache -- it will set a key and expire in 10 seconds" })
+  @Get("cache")
   async test() {
     const custom = await this.cacheManager.get('custom_key');
     if (!custom) {
-      console.log("set");
       await this.cacheManager.set('custom_key', {
         date: new Date(),
         value: "custom_value"
       }, 10000);
       return await this.cacheManager.get('custom_key');
     }
-    console.log("get");
     return custom;
   }
 
+
+  @ApiOperation({ summary: "fetch all products without pagination" })
+  @ApiResponse({ status: 200, type: [Product] })
   @Get("/get-all")
   getAllProductsWithoutPagination() {
     return this.productService.getAllProductsWithoutPagination();
   }
 
+  @ApiOperation({ summary: "Export PDF using html renderer or pdf renderer" })
+  @ApiParam({
+    name: "type",
+    enum: ["html", "pdf"],
+    example: "html",
+    required: false,
+    description: "two types of rendering 1. html 2. pdf (default). If you want to get pdf rendered in html then pass html in type",
+  })
   @Get("export-pdf/:type?")
   async exportPdf(@Res() res: any, @Param("type") type: string) {
     let pdfData: string;
@@ -71,6 +84,8 @@ export class ProductController {
     res.send(pdfData);
   }
 
+  @ApiOperation({ summary: "Fetch paginated products" })
+  @ApiBody({ type: QueryCollateralTypeDto })
   @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
   @HttpCode(HttpStatus.OK)
   @Post("/get")
@@ -78,7 +93,19 @@ export class ProductController {
   async getAllProducts(@Body(validationPipe) query: QueryCollateralTypeDto) {
   }
 
-  // bulk import products (csv) upload
+  @ApiOperation({ summary: "import products from csv file" })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Post("bulk-import")
   @UseInterceptors(FileInterceptor("file", multerOptionsCSV))
   async bulkImportProducts(@UploadedFile() file: Express.Multer.File) {
@@ -101,7 +128,9 @@ export class ProductController {
     );
   }
 
-  // add product
+  @ApiOperation({ summary: "Create a new product" })
+  @ApiBody({ type: CreateProductDto })
+  @ApiResponse({ status: 201, type: Product })
   @Post()
   async addProduct(@Body(CustomPipe) createProductDto: CreateProductDto) {
     const added = await this.productService.addProduct(createProductDto);
@@ -109,7 +138,12 @@ export class ProductController {
     throw new InternalServerErrorException("Something went wrong");
   }
 
-  // update product
+  @ApiOperation({
+    summary: "Update a product",
+    description: "All fields in the body are optional. Fields are available in create product endpoint"
+  })
+  @ApiParam({ name: "id", type: String, required: true })
+  @ApiBody({ type: UpdateProductDto })
   @Patch(":id")
   async updateProduct(
     @Param(CustomPipe) deleteProductDto: DeleteProductDto,
@@ -120,7 +154,8 @@ export class ProductController {
     throw new NotFoundException("Couldn't update any row");
   }
 
-  // delete product
+  @ApiOperation({ summary: "Delete a product" })
+  @ApiParam({ name: "id", type: String, required: true })
   @Delete(":id")
   async deleteProduct(@Param(CustomPipe) deleteProductDto: DeleteProductDto) {
     const deleteResult = await this.productService.deleteProduct(deleteProductDto.id);

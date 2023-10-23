@@ -18,22 +18,30 @@ import { ChangePasswordDto } from './dto/changePassword.dto';
 import { LoginDto } from './dto/loginUser.dto';
 import { ForgetPasswordDto } from './dto/forgetPassword.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
+import { ApiBody, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({ summary: "Sign up" })
+  @ApiBody({ type: CreateTenantDto })
   @Post('/signup')
   @UsePipes(CustomPipe)
   signUp(@Body() userDto: CreateTenantDto) {
     return this.authService.signUp(userDto);
   }
 
+  @ApiOperation({ summary: "Sign in" })
+  @ApiBody({ type: LoginDto })
   @Post('/signin')
   signIn(@Body(ValidationPipe) userDto: LoginDto): Promise<object> {
     return this.authService.signIn(userDto);
   }
 
+  @ApiOperation({ summary: "Change password" })
+  @ApiBody({ type: ChangePasswordDto })
   @Post('/change-password')
   @UseGuards(JwtAuthGuard)
   async changePassword(
@@ -48,6 +56,8 @@ export class AuthController {
     return { message: status };
   }
 
+  @ApiOperation({ summary: "Forget password" })
+  @ApiBody({ type: ForgetPasswordDto })
   @Post('/forget-password')
   async forgetPassword(
     @Body(ValidationPipe) forgetPasswordDto: ForgetPasswordDto,
@@ -58,6 +68,9 @@ export class AuthController {
     return { message: status };
   }
 
+  @ApiOperation({ summary: "Reset password" })
+  @ApiParam({ name: 'token', type: String, description: "uuid" })
+  @ApiBody({ type: ResetPasswordDto })
   @Post('/reset-password/:token')
   async resetPassword(
     @Body(ValidationPipe) resetPasswordDto: ResetPasswordDto,
@@ -71,6 +84,8 @@ export class AuthController {
     return { message: status };
   }
 
+  @ApiOperation({ summary: "Verify token" })
+  @ApiQuery({ name: 'token', type: String })
   @Get('verify-token')
   @UseGuards(JwtAuthGuard)
   async verifyToken(

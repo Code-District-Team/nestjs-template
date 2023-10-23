@@ -15,6 +15,6 @@ export class TenantService {
   }
 
   findOne(tenantId: string) {
-    return this.userRepository.find({ where: { tenantId }, relations: ["tenant", "role"] });
+    return this.userRepository.find({ where: { tenantId }, relations: ["tenant"] });
   }
 }

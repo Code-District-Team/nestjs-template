@@ -39,6 +39,8 @@ import { CurrentUser } from "../../decorators/current-user.decorator";
 
 const bucketName = process.env.AWS_BUCKET;
 
+@ApiTags('User')
+@ApiBearerAuth('JWT-auth')
 @Controller('user')
 export class UsersController {
   constructor(private readonly userService: UsersService) {

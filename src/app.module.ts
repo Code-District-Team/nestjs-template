@@ -11,7 +11,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ProductModule } from './modules/product/product.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import { HeroModule } from './modules/hero/hero.module';
 import { UserRolesModule } from './modules/user-roles/user-roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
@@ -20,6 +19,13 @@ import { TenantModule } from './modules/tenant/tenant.module';
 import { User } from "./modules/users/entities/user.entity";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { UsersController } from "./modules/users/users.controller";
+import { ProductController } from "./modules/product/product.controller";
+import { PermissionsController } from "./modules/permissions/permissions.controller";
+import { TenantController } from "./modules/tenant/tenant.controller";
+import { UserRolesController } from "./modules/user-roles/user-roles.controller";
+import { RolesController } from "./modules/roles/roles.controller";
+import { RolesPermissions } from "./decorators/roles.decorator";
+import { RolePermissionsController } from "./modules/role-permissions/role-permissions.controller";
 
 @Module({
   imports: [
@@ -36,7 +42,6 @@ import { UsersController } from "./modules/users/users.controller";
     AuthModule,
     MailModule,
     ProductModule,
-    HeroModule,
     UserRolesModule,
     PermissionsModule,
     RolePermissionsModule,
@@ -50,6 +55,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes(UsersController);
+      .forRoutes(UsersController, ProductController, PermissionsController, TenantController, UserRolesController,
+        RolesController, RolePermissionsController);
   }
 }
