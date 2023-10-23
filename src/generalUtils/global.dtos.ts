@@ -1,8 +1,12 @@
 import { Transform, Type } from "class-transformer";
 import {
-  ArrayNotEmpty, IsArray, IsDate, IsDateString, IsDefined,
-  IsEnum, IsNotEmptyObject,
-  IsNumber, IsObject,
+  ArrayNotEmpty,
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsNotEmptyObject,
+  IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Max,
@@ -13,12 +17,14 @@ import {
 } from "class-validator";
 import { AgGridFilter, AgGridFilterValues, SortOrders, SortOrderValues } from "./types";
 import { IsStringOrNull } from "../pipe/string-or-null.pip";
+import { ApiProperty } from "@nestjs/swagger";
 
 /**
  * This is a generic dto for querying a list of entities.
  * Please extend and override the sortBy property to allow only valid sort fields.
  */
 export class QueryCollateralTypeDto {
+  @ApiProperty({})
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
   @Min(1)

@@ -33,9 +33,12 @@ import { createSignedLink } from 'src/generalUtils/aws-config';
 import { FileInterceptor } from "@nestjs/platform-express";
 import { multerOptions } from "../../generalUtils/helper";
 import { AssignRolesDto } from "./dto/assign-roles.dto";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 const bucketName = process.env.AWS_BUCKET;
 
+@ApiTags('User')
+@ApiBearerAuth('JWT-auth')
 @Controller('user')
 export class UsersController {
   constructor(private readonly userService: UsersService) {

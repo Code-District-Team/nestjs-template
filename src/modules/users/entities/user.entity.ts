@@ -4,25 +4,32 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn, JoinTable, ManyToMany,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { Role } from '../../roles/entities/role.entity';
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity({ name: 'users' })
 export class User {
+  @ApiProperty({ example: '1', description: 'Unique identifier', type: String })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty({ example: 'First Name', type: String })
   @Column({ length: 255, name: 'first_name' })
   firstName: string;
 
+  @ApiProperty({ example: 'Last Name', type: String })
   @Column({ length: 255, name: 'last_name' })
   lastName: string;
 
+  @ApiProperty({ example: 'Email', type: String })
   @Column({
     unique: true,
   })
@@ -31,18 +38,23 @@ export class User {
   @Column()
   password: string;
 
+  @ApiProperty({ example: 'Address', type: String })
   @Column()
   address: string;
 
+  @ApiProperty({ example: 'Image url', type: String })
   @Column({ name: 'profile_image_url', nullable: true })
   profileImageUrl: string;
 
+  @ApiProperty({ example: 'phone', type: String })
   @Column({ length: 12, name: 'work_phone', nullable: true })
   workPhone: string;
 
+  @ApiProperty({ example: 'phone', type: String })
   @Column({ length: 12, name: 'home_phone', nullable: true, select: false })
   homePhone: string;
 
+  @ApiProperty({ example: 'phone', type: String })
   @Column({ length: 12, name: 'mobile_phone' })
   mobilePhone: string;
 
@@ -61,12 +73,7 @@ export class User {
   })
   forgetPasswordTokenExpires: number;
 
-  // @ManyToOne((type) => Organization, (organization) => organization.user, {
-  //   eager: true,
-  // })
-  // @JoinColumn({ name: 'organization_id' })
-  // organization: Organization;
-
+  @ApiProperty({ type: Date })
   @CreateDateColumn({
     type: 'timestamp',
     name: 'created_at',
@@ -74,16 +81,15 @@ export class User {
   })
   createdAt: Date;
 
+  @ApiProperty({ type: Date })
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updatedAt: string;
 
+  @ApiProperty({ type: Date })
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at' })
   deletedAt: string;
 
-  // @ManyToOne(() => Role, (role) => role.users, { eager: true })
-  // @JoinColumn({ name: 'role_id' })
-  // role: Role;
-
+  @ApiProperty({ type: [Role] })
   @ManyToMany(() => Role)
   @JoinTable({
     name: 'user_roles',
@@ -98,6 +104,7 @@ export class User {
   })
   roles: Role[];
 
+  @ApiProperty({ enum: StatusEnum, type: String, default: StatusEnum.INACTIVE })
   @Column({
     type: 'enum',
     enum: StatusEnum,
