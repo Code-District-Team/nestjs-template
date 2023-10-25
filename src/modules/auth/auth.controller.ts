@@ -38,7 +38,7 @@ export class AuthController {
   @Post('/signup-user')
   @UsePipes(CustomPipe)
   signUpUser(@Body() userDto: CreateUserDto) {
-    // return this.authService.signUp(userDto);
+    return this.authService.signUp(userDto);
   }
 
   @ApiOperation({ summary: "Sign in" })

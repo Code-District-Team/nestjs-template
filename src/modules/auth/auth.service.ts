@@ -1,10 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException, } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { CreateTenantDto, CreateUserDto } from '../users/dto/createUser.dto';
@@ -16,7 +10,6 @@ import { jwtPayload } from './jwt-payload.interface';
 import * as bcrypt from 'bcryptjs';
 
 import { User } from '../users/entities/user.entity';
-import { TenantModule } from "../tenant/tenant.module";
 
 @Injectable()
 export class AuthService {
@@ -24,10 +17,15 @@ export class AuthService {
     private userService: UsersService,
     private mailService: MailService,
     private jwtService: JwtService,
-  ) {}
+  ) {
+  }
 
-  async signUp(userDto: CreateTenantDto): Promise<object> {
-    const result = await this.userService.signUp(userDto);
+
+  async signUp(userDto: CreateTenantDto | CreateUserDto): Promise<object> {
+    let result: User;
+    if (userDto instanceof CreateTenantDto)
+      result = await this.userService.signUp(userDto);
+    else result = await this.userService.signUpUser(userDto);
 
     if (result) {
       const email = result.email;
@@ -43,6 +41,7 @@ export class AuthService {
       throw new HttpException('User Not Created', HttpStatus.BAD_REQUEST);
     }
   }
+
   async signIn(userDto: LoginDto): Promise<object> {
     let user = await this.userService.validateUser(userDto);
 
@@ -54,10 +53,11 @@ export class AuthService {
     const { password, ...userWithoutPassword } = user;
 
     const response = {
-      user: {...userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
         name: user.lastName
-        ? user.firstName + ' ' + user.lastName
-        : user.firstName
+          ? user.firstName + ' ' + user.lastName
+          : user.firstName
       },
       apiToken: accessToken,
     };

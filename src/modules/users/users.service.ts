@@ -1,6 +1,6 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { CreateTenantDto } from './dto/createUser.dto';
+import { CreateTenantDto, CreateUserDto } from './dto/createUser.dto';
 import { EditUserDto } from './dto/editUser.dto';
 
 import * as bcrypt from 'bcryptjs';
@@ -208,6 +208,47 @@ export class UsersService {
     return resData;
   }
 
+  async signUpUser(userdto: CreateUserDto) {
+    const { firstName, lastName, email, password, mobilePhone } = userdto;
+    const user = await this.userRepository.findOne({ where: { email }, relations: ['roles', 'roles.permissions'] });
+
+    const isPendingUser = user && user.status === StatusEnum.PENDING;
+
+    if (user && user.status === StatusEnum.ACTIVE) {
+      throw new HttpException('Email Already Exists', HttpStatus.BAD_REQUEST);
+    }
+
+    const newUser = isPendingUser ? user : new User();
+
+    newUser.firstName = firstName;
+    newUser.lastName = lastName;
+    newUser.password = bcrypt.hashSync(password, bcrypt.genSaltSync());
+    newUser.mobilePhone = mobilePhone;
+    if (!isPendingUser) {
+      newUser.email = email;
+      const role = await this.roleRepository.findOne({
+        where: { name: RoleEnum.USER },
+        relations: ["permissions"]
+      });
+      if (!role)
+        throw new BadRequestException("This role does not exist.")
+      newUser.roles = [role];
+    }
+    newUser.status = StatusEnum.ACTIVE;
+
+    try {
+      isPendingUser
+        ? await this.userRepository.upsert(newUser, ['email'])
+        : await this.userRepository.save(newUser);
+      return newUser;
+    } catch (error) {
+      throw new HttpException(
+        `Error saving database ${error}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   async signUp(userDto: CreateTenantDto) {
     const user = await this.userRepository.findOne({
       where: { email: userDto.companyEmail }
@@ -312,7 +353,7 @@ export class UsersService {
     }
   }
 
-  async inviteUser(email: string, roleId: string, tenant: Tenant): Promise<string> {
+  async inviteUser(email: string, roleId: string, tenant: Tenant = null): Promise<string> {
     const [role, emailExists] = await Promise.all([
       this.roleRepository.findOneBy({ id: roleId }),
       this.userRepository.findOneBy({ email }),
