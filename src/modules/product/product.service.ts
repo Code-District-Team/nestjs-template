@@ -78,7 +78,7 @@ export class ProductService {
   }
 
   getAllProductsWithoutPagination() {
-    return this.productRepository.find();
+    return this.productRepository.find({take: 100});
   }
 
   async exportPdf() {

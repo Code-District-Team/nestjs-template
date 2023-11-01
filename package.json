@@ -65,6 +65,7 @@
     "pg-query-stream": "^4.5.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "stripe": "^14.2.0",
     "typeorm": "^0.3.12",
     "uuid": "^9.0.0",
     "webpack": "^5.78.0"

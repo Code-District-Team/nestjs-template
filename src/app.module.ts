@@ -25,6 +25,7 @@ import { UserRolesController } from "./modules/user-roles/user-roles.controller"
 import { RolesController } from "./modules/roles/roles.controller";
 import { RolePermissionsController } from "./modules/role-permissions/role-permissions.controller";
 import { AuthTenantMiddleware } from "./middlewares/auth-tenant.middleware";
+import { StripeModule } from './modules/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { AuthTenantMiddleware } from "./middlewares/auth-tenant.middleware";
     RolePermissionsModule,
     RolesModule,
     TenantModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -54,7 +56,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthTenantMiddleware)
-      .forRoutes(UsersController, ProductController, PermissionsController, TenantController, UserRolesController,
+      .forRoutes(UsersController,  PermissionsController, TenantController, UserRolesController,
         RolesController, RolePermissionsController);
   }
 }
