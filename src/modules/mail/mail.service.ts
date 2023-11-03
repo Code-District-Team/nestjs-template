@@ -212,7 +212,7 @@ export class MailService {
                   <p>
                   Click below to set up your account.
                   </p>
-                  <a class="reset-password-btn" style="color:#FFF;" href="${process.env.FRONTEND_URL}/register/?token=${token}&email=${user.email}" target="_blank">Accept Invite</a>
+                  <a class="reset-password-btn" style="color:#FFF;" href="${process.env.FRONTEND_URL}/set-password/?token=${token}&email=${user.email}" target="_blank">Accept Invite</a>
              </div>
              <div class="email-template-footer">
                   Copyright © ${new Date().getFullYear()}  CodeDistrict

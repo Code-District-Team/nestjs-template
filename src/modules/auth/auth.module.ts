@@ -10,12 +10,14 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { jwtConstants } from 'src/generalUtils/constant';
 import { TenantModule } from "../tenant/tenant.module";
+import { StripeModule } from "../stripe/stripe.module";
 
 @Module({
   imports: [
     UsersModule,
     TenantModule,
     MailModule,
+    StripeModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,

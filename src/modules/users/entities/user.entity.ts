@@ -122,4 +122,19 @@ export class User {
     default: StatusEnum.INACTIVE,
   })
   status: StatusEnum;
+
+  @ApiProperty({ example: 'Company Phone', type: String })
+  @Column({ name: 'stripe_customer_id', type: 'varchar', length: 255, nullable: true, })
+  stripeCustomerId: string;
+
+  @ApiProperty({ example: 'Company Phone', type: Boolean })
+  @Column({ name: 'is_payment_method_attached', type: 'boolean', default: false, })
+  isPaymentMethodAttached: boolean;
+
+  getFullName(): string {
+    if (this.firstName && this.lastName)
+      return `${this.firstName} ${this.lastName}`;
+    if (this.firstName) return this.firstName;
+    if (this.lastName) return this.lastName;
+  }
 }

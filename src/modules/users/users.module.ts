@@ -10,11 +10,13 @@ import { MailModule } from "../mail/mail.module";
 
 import { User } from './entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
+import { StripeModule } from "../stripe/stripe.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Role]),
     MailModule,
+    StripeModule,
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: jwtConstants.time },

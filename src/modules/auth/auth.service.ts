@@ -10,6 +10,7 @@ import { jwtPayload } from './jwt-payload.interface';
 import * as bcrypt from 'bcryptjs';
 
 import { User } from '../users/entities/user.entity';
+import { StripeService } from "../stripe/stripe.service";
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     private userService: UsersService,
     private mailService: MailService,
     private jwtService: JwtService,
+    private stripeService: StripeService
   ) {
   }
 

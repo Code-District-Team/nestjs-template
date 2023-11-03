@@ -23,6 +23,7 @@ import * as fs from "fs";
 import { Tenant } from "../tenant/entities/tenant.entity";
 import { GetUserRequestDto2 } from "./dto/getUsers.dto";
 import { FindManyOptions } from "typeorm/find-options/FindManyOptions";
+import { StripeService } from "../stripe/stripe.service";
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -36,7 +37,8 @@ export class UsersService {
     private jwtService: JwtService,
     private mailService: MailService,
     @InjectDataSource()
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private stripeService: StripeService,
   ) {
   }
 
@@ -239,12 +241,16 @@ export class UsersService {
     try {
       isPendingUser
         ? await this.userRepository.upsert(newUser, ['email'])
-        : await this.userRepository.save(newUser);
+        : await this.dataSource.transaction(async (manager) => {
+          const stripeCustomer = await this.stripeService.createCustomer(newUser.getFullName(), newUser.email);
+          newUser.stripeCustomerId = stripeCustomer.id;
+          return manager.save(User, newUser)
+        });
       return newUser;
     } catch (error) {
       throw new HttpException(
         `Error saving database ${error}`,
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -273,6 +279,8 @@ export class UsersService {
         relations: ["permissions"]
       })];
       user.tenant = tenant;
+      const stripeCustomer = await this.stripeService.createCustomer(user.getFullName(), userDto.companyEmail);
+      user.stripeCustomerId = stripeCustomer.id;
       return manager.save(user);
     });
   }
@@ -283,7 +291,10 @@ export class UsersService {
 
   async validateUser(userDto: LoginDto): Promise<User> {
     const { email, password } = userDto;
-    const user = await this.userRepository.findOne({ where: { email }, relations: ["roles", "roles.permissions"] });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: ["tenant", "roles", "roles.permissions"]
+    });
 
     if (user && bcrypt.compareSync(password, user.password)) {
       return user;
