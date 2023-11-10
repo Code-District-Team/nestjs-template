@@ -6,15 +6,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { jwtConstants } from 'src/generalUtils/constant';
 import { MailModule } from "../mail/mail.module";
-
-
 import { User } from './entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { StripeModule } from "../stripe/stripe.module";
+import { Tenant } from "../tenant/entities/tenant.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role]),
+    TypeOrmModule.forFeature([User, Role, Tenant]),
     MailModule,
     StripeModule,
     JwtModule.register({

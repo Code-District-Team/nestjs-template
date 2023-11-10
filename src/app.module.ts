@@ -18,7 +18,6 @@ import { RolesModule } from './modules/roles/roles.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { User } from "./modules/users/entities/user.entity";
 import { UsersController } from "./modules/users/users.controller";
-import { ProductController } from "./modules/product/product.controller";
 import { PermissionsController } from "./modules/permissions/permissions.controller";
 import { TenantController } from "./modules/tenant/tenant.controller";
 import { UserRolesController } from "./modules/user-roles/user-roles.controller";
@@ -26,6 +25,7 @@ import { RolesController } from "./modules/roles/roles.controller";
 import { RolePermissionsController } from "./modules/role-permissions/role-permissions.controller";
 import { AuthTenantMiddleware } from "./middlewares/auth-tenant.middleware";
 import { StripeModule } from './modules/stripe/stripe.module';
+import { StripeController } from "./modules/stripe/stripe.controller";
 
 @Module({
   imports: [
@@ -56,7 +56,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthTenantMiddleware)
-      .forRoutes(UsersController,  PermissionsController, TenantController, UserRolesController,
-        RolesController, RolePermissionsController);
+      .forRoutes(UsersController, PermissionsController, TenantController, UserRolesController,
+        RolesController, RolePermissionsController, StripeController);
   }
 }

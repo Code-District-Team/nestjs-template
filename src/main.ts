@@ -2,8 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { patchSelectQueryBuilder } from "./typeormGlobalScopes";
+import { ConfigModule } from "@nestjs/config";
+import { RequestContextMiddleware } from "./typeormGlobalScopes/requestcontextmiddleware";
 
+ConfigModule.forRoot();
 async function bootstrap() {
+  patchSelectQueryBuilder();
   const app = await NestFactory.create(AppModule);
 
   // whitelist validation
@@ -38,6 +43,8 @@ async function bootstrap() {
 
   const port = +process.env.BACKEND_PORT;
   app.enableCors();
+  app.use(RequestContextMiddleware);
+
   await app.listen(port);
 }
 

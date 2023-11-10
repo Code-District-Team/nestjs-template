@@ -89,14 +89,7 @@ export class ProductController {
   @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
   @HttpCode(HttpStatus.OK)
   @Post("/get")
-  @PaginateEntity({ table: Product }, [{
-    joinType: "inner",
-    property: "tenant",
-    alias: "tenant",
-    select: ["id", "name"],
-    condition: "tenant.id = :tenantId",
-    parameters: { tenantId: "tenant.id" }
-  }])
+  @PaginateEntity({ table: Product })
   async getAllProducts(@Body(validationPipe) query: QueryCollateralTypeDto) {
   }
 

@@ -15,13 +15,21 @@ export class StripeService {
     });
   }
 
-  addPaymentMethod(customerId: string, paymentMethodId: string) {
-    return stripe.paymentMethods.attach(paymentMethodId, {
-      customer: customerId,
+  async addPaymentMethod(tenant: Tenant, paymentMethodId: string) {
+    await this.removePaymentMethod(tenant);
+    const response = await stripe.paymentMethods.attach(paymentMethodId, {
+      customer: tenant.stripeCustomerId,
     });
+    if (response.card_present) {
+      tenant.isPaymentMethodAttached = true;
+      return tenant.save();
+    }
+    return tenant;
   }
 
   async removePaymentMethod(tenant: Tenant) {
+    if (!tenant.stripeCustomerId)
+      return tenant;
     const paymentLists = await this.getPaymentMethods(tenant.stripeCustomerId);
     if (paymentLists.data.length) {
       await Promise.all(paymentLists.data.map((paymentMethod) => {
@@ -50,10 +58,20 @@ export class StripeService {
 
   deduct(amount: number, customerId: string) {
     return stripe.charges.create({
-      amount,
+      amount: amount * 100,
       currency: "usd",
       customer: customerId,
     });
   }
 
+  async createPaymentIntent(amount: number, stripeCustomerId: string) {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100,
+      currency: "usd",
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+    return paymentIntent.client_secret;
+  }
 }

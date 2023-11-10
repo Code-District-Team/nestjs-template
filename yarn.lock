@@ -6778,6 +6778,11 @@ node-releases@^2.0.13:
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.13.tgz"
   integrity sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==
 
+node-request-context@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/node-request-context/-/node-request-context-1.0.5.tgz"
+  integrity sha512-y7xXgz0ySpYIXdQEWNmh85n8d3fmoG8YYW2hU6C7SC/Y83jCXk2ffzpJbVVpcgNE1FwqgVuw40MCTa+Sl6zV8A==
+
 nodemailer@^6.4.6, nodemailer@^6.9.2:
   version "6.9.5"
   resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-6.9.5.tgz"

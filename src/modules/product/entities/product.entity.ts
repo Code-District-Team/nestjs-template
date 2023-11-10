@@ -1,5 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, } from 'typeorm';
 import { ApiProperty } from "@nestjs/swagger";
+import { GlobalScopes } from "../../../typeormGlobalScopes";
+import { RequestContext } from "../../../typeormGlobalScopes/requestContext";
 
 export class ColumnNumericTransformer {
   to(data: number): number {
@@ -12,6 +14,13 @@ export class ColumnNumericTransformer {
 }
 
 
+@GlobalScopes<Product>([
+  (qb, alias) => {
+    const tenant = RequestContext.currentRequest().body["tenantId"];
+    if (!tenant) return qb;
+    return qb.andWhere(`${alias}.tenant = ${tenant}`);
+  },
+])
 @Entity({ name: 'products' })
 export class Product {
   @ApiProperty({ type: String })

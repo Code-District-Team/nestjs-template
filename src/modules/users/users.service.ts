@@ -32,6 +32,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Tenant)
+    private readonly tenantRepository: Repository<Tenant>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     private jwtService: JwtService,
@@ -259,6 +261,12 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: { email: userDto.companyEmail }
     });
+    const cName = await this.tenantRepository.findOne({
+      where: { companyName: userDto.companyName }
+    });
+    if (cName)
+      throw new HttpException('Company Name Already exists', HttpStatus.BAD_REQUEST);
+
     if (user)
       throw new HttpException('Email Already exists', HttpStatus.BAD_REQUEST);
     return this.dataSource.transaction(async (manager) => {
@@ -266,7 +274,6 @@ export class UsersService {
       tenant.companyName = userDto.companyName;
       tenant.companyEmail = userDto.companyEmail;
       tenant.companyWebsite = userDto.companyWebsite;
-      await manager.save(tenant);
       const user = new User();
       user.firstName = userDto.firstName;
       user.lastName = userDto.lastName;
@@ -278,9 +285,10 @@ export class UsersService {
         where: { name: RoleEnum.ADMIN },
         relations: ["permissions"]
       })];
-      user.tenant = tenant;
       const stripeCustomer = await this.stripeService.createCustomer(user.getFullName(), userDto.companyEmail);
-      user.stripeCustomerId = stripeCustomer.id;
+      tenant.stripeCustomerId = stripeCustomer.id;
+      await manager.save(tenant);
+      user.tenant = tenant;
       return manager.save(user);
     });
   }
@@ -381,11 +389,12 @@ export class UsersService {
     user.tenant = tenant;
     const password = '123456';
     user.password = bcrypt.hashSync(password, bcrypt.genSaltSync());
-    user.status = StatusEnum.PENDING;
+    user.status = StatusEnum.PENDING;const token = v4();
+    user.forgetPasswordToken = token;
 
     await this.userRepository.save(user);
 
-    const token = await this.jwtService.sign({ email });
+    // const token = await this.jwtService.sign({ email });
 
     return await this.mailService.sendUserInvite(user, token);
   }

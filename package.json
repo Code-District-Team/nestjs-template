@@ -59,6 +59,7 @@
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.4",
     "multer": "^1.4.5-lts.1",
+    "node-request-context": "^1.0.5",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.0",
