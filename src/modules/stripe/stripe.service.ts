@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { Tenant } from "../tenant/entities/tenant.entity";
+import { convertDollarsToCents } from "../../generalUtils/helper";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
@@ -22,7 +23,8 @@ export class StripeService {
     });
     if (response.card_present) {
       tenant.isPaymentMethodAttached = true;
-      return tenant.save();
+      await tenant.save();
+      return response;
     }
     return tenant;
   }
@@ -56,12 +58,43 @@ export class StripeService {
     });
   }
 
-  deduct(amount: number, customerId: string) {
-    return stripe.charges.create({
-      amount: amount * 100,
-      currency: "usd",
+  async createStripeInvoiceItem(invoiceId: string, stripeInfo: any) {
+    return stripe.invoiceItems.create({
+      customer: stripeInfo.stripeCustomerId,
+      invoice: invoiceId,
+      amount: convertDollarsToCents(stripeInfo.amount),
+      description: stripeInfo.description,
+      currency: "USD",
+    });
+  }
+
+  async deduct(amount: number, customerId: string) {
+    const payList = await this.getPaymentMethods(customerId);
+    if (!payList.data.length)
+      throw new HttpException("No card is attached", 400);
+    const invoiceCreation = await stripe.invoices.create({
       customer: customerId,
     });
+    const invoice = await stripe.invoiceItems.create({
+      customer: customerId,
+      // invoice: invoiceCreation.id,
+      amount: convertDollarsToCents(amount),
+      description: `Deducted ${amount} from your account`,
+      currency: "USD",
+    });
+    // finalizing the invoice
+    const invoiceFinalize = await stripe.invoices.finalizeInvoice(invoiceCreation.id);
+    const paymentIntentConfirmation = await stripe.paymentIntents.confirm(invoiceFinalize.payment_intent.toString(), {
+      payment_method: payList.data[0].id,
+      return_url: process.env.STRIPE_RETURN_URL,
+    });
+    if (paymentIntentConfirmation.next_action !== null && paymentIntentConfirmation.status !== "succeeded") {
+      return {
+        url: paymentIntentConfirmation.next_action.redirect_to_url.url,
+        ...paymentIntentConfirmation,
+      };
+    }
+    return paymentIntentConfirmation;
   }
 
   async createPaymentIntent(amount: number, stripeCustomerId: string) {

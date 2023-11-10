@@ -26,6 +26,7 @@ import { RolePermissionsController } from "./modules/role-permissions/role-permi
 import { AuthTenantMiddleware } from "./middlewares/auth-tenant.middleware";
 import { StripeModule } from './modules/stripe/stripe.module';
 import { StripeController } from "./modules/stripe/stripe.controller";
+import { StripeWebhooksModule } from './modules/stripe-webhooks/stripe-webhooks.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { StripeController } from "./modules/stripe/stripe.controller";
     RolesModule,
     TenantModule,
     StripeModule,
+    StripeWebhooksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

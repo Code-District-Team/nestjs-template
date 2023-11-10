@@ -5,8 +5,10 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { patchSelectQueryBuilder } from "./typeormGlobalScopes";
 import { ConfigModule } from "@nestjs/config";
 import { RequestContextMiddleware } from "./typeormGlobalScopes/requestcontextmiddleware";
+import { json } from "express";
 
 ConfigModule.forRoot();
+
 async function bootstrap() {
   patchSelectQueryBuilder();
   const app = await NestFactory.create(AppModule);
@@ -18,6 +20,18 @@ async function bootstrap() {
     forbidNonWhitelisted: false,
   }));
   // app.useGlobalPipes(validationPipe);
+
+  // Get raw response (stripe)
+  app.use(
+    json({
+      verify: (req: any, res, buf, encoding) => {
+        if (req.headers['stripe-signature']) {
+          req.rawBody = buf.toString('utf8');
+        }
+        return true;
+      },
+    })
+  );
 
 
   // swagger

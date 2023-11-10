@@ -17,6 +17,10 @@ export const toYYYYMMDD = (date: Date) => {
   return [date.getFullYear(), mm > 9 ? mm : '0' + mm, dd > 9 ? dd : '0' + dd].join('-');
 }
 
+export const convertDollarsToCents = (amount: number): number => {
+  return Math.round(amount * 100);
+};
+
 export const updateObjProps = (src: object, dest: object) => {
   Object.keys(dest).forEach((obj) => {
     if (src[obj])
