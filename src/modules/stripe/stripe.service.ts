@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { Tenant } from "../tenant/entities/tenant.entity";
 import { convertDollarsToCents } from "../../generalUtils/helper";
+import { VerifyPaymentDto } from "./dto/verfiy-payment.dto";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
@@ -77,7 +78,7 @@ export class StripeService {
     });
     const invoice = await stripe.invoiceItems.create({
       customer: customerId,
-      // invoice: invoiceCreation.id,
+      invoice: invoiceCreation.id,
       amount: convertDollarsToCents(amount),
       description: `Deducted ${amount} from your account`,
       currency: "USD",
@@ -105,6 +106,18 @@ export class StripeService {
         enabled: true,
       },
     });
-    return paymentIntent.client_secret;
+    return {
+      clientSecret: paymentIntent.client_secret,
+    };
+  }
+
+  async verifyPayment(payment: VerifyPaymentDto) {
+    const { payment_intent, payment_intent_client_secret, redirect_status } = payment
+    const paymentInfo = await stripe.paymentIntents.retrieve(payment_intent);
+    if (paymentInfo.status === "succeeded" && paymentInfo.client_secret === payment_intent_client_secret) {
+      return {
+        message: "Payment successful",
+      };
+    }
   }
 }

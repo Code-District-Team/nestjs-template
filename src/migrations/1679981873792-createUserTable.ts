@@ -8,6 +8,7 @@ export class createUserTable1679981873792 implements MigrationInterface {
         name: 'users',
         columns: [
           {
+
             name: 'id',
             type: 'uuid',
             isPrimary: true,
@@ -97,7 +98,7 @@ export class createUserTable1679981873792 implements MigrationInterface {
             type: 'enum',
             enum: [StatusEnum.ACTIVE, StatusEnum.INACTIVE, StatusEnum.PENDING],
             enumName: 'StatusEnum',
-            default: `'INACTIVE'`,
+            default: `${StatusEnum.ACTIVE}`,
           },
         ],
       }),

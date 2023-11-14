@@ -27,6 +27,8 @@ import { AuthTenantMiddleware } from "./middlewares/auth-tenant.middleware";
 import { StripeModule } from './modules/stripe/stripe.module';
 import { StripeController } from "./modules/stripe/stripe.controller";
 import { StripeWebhooksModule } from './modules/stripe-webhooks/stripe-webhooks.module';
+import { StripeWebhookMiddleware } from "./middlewares/stripe.webhook.middleware";
+import { StripeWebhooksController } from "./modules/stripe-webhooks/stripe-webhooks.controller";
 
 @Module({
   imports: [
@@ -59,6 +61,8 @@ export class AppModule {
     consumer
       .apply(AuthTenantMiddleware)
       .forRoutes(UsersController, PermissionsController, TenantController, UserRolesController,
-        RolesController, RolePermissionsController, StripeController);
+        RolesController, RolePermissionsController, );
+        // StripeController);
+    consumer.apply(StripeWebhookMiddleware).forRoutes(StripeWebhooksController);
   }
 }
