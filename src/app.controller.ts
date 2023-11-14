@@ -14,4 +14,13 @@ export class AppController {
     throw new HttpException("Helo", 200);
     return this.appService.getHello();
   }
+
+  @Get("self-window-close")
+  selfWindowClose() {
+    return `<html>
+            <head>
+                <script>{setTimeout(window.opener.postMessage('paymentCompleted', '*'), 2000)}</script>
+            </head>
+        </html>`;
+  }
 }
