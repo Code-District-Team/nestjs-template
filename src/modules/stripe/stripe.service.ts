@@ -43,11 +43,16 @@ export class StripeService {
     return tenant.save();
   }
 
-  getPaymentMethods(customerId: string) {
-    return stripe.paymentMethods.list({
+  async getPaymentMethods(customerId: string) {
+    const details = await stripe.paymentMethods.list({
       customer: customerId,
       type: "card",
     });
+    for (const paymentMethod of details.data) {
+      const card = paymentMethod.card;
+      card.brand += ".png";
+    }
+    return details;
   }
 
   invoiceCustomer(customerId: string, limit: number = 100) {

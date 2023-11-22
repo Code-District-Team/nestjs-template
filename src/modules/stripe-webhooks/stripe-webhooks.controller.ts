@@ -11,6 +11,7 @@ export class StripeWebhooksController {
   getHello() {
     return {};
   }
+
   @Post()
   async handleStripeWebhook(@Body() body: Stripe.Event) {
     switch (body.type) {
@@ -32,7 +33,7 @@ export class StripeWebhooksController {
         break;
       case "customer.subscription.updated":
         const subscriptionUpdated = body.data.object;
-        console.log("Customer subscription updated!");
+        return this.service.updateCustomerSubscription(subscriptionUpdated)
         break;
       case "invoice.paid":
         const invoice = body.data.object;
@@ -40,7 +41,7 @@ export class StripeWebhooksController {
         break;
       default:
         console.log(`Unhandled event type ${body.type}`);
-
     }
+    return "not-ok";
   }
 }
