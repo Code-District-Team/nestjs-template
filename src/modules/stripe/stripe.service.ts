@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { Tenant } from "../tenant/entities/tenant.entity";
 import { convertDollarsToCents } from "../../generalUtils/helper";
@@ -22,7 +22,7 @@ export class StripeService {
     const response = await stripe.paymentMethods.attach(paymentMethodId, {
       customer: tenant.stripeCustomerId,
     });
-    if (response.card_present) {
+    if (response.card) {
       tenant.isPaymentMethodAttached = true;
       await tenant.save();
       return response;
@@ -124,5 +124,6 @@ export class StripeService {
         message: "Payment successful",
       };
     }
+    throw new HttpException({ message: 'payment was not successful' }, HttpStatus.PAYMENT_REQUIRED);
   }
 }
