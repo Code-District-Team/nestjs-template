@@ -17,28 +17,22 @@ export class StripeWebhooksController {
     switch (body.type) {
       case "payment_intent.succeeded":
         const paymentIntent = body.data.object;
-        console.log("PaymentIntent was successful!");
-        break;
+        return this.service.updatePaymentIntent(paymentIntent)
       case "customer.created":
         const customer = body.data.object;
-        console.log("Customer was created!");
-        break;
+        return this.service.updateCustomer(customer)
       case "customer.subscription.created":
         const subscription = body.data.object;
-        console.log("Customer subscription created!");
-        break;
+        return this.service.updateCustomerSubscription(subscription)
       case "customer.subscription.deleted":
         const subscriptionDeleted = body.data.object;
-        console.log("Customer subscription deleted!");
-        break;
+        return this.service.updateCustomerSubscription(subscriptionDeleted)
       case "customer.subscription.updated":
         const subscriptionUpdated = body.data.object;
         return this.service.updateCustomerSubscription(subscriptionUpdated)
-        break;
       case "invoice.paid":
         const invoice = body.data.object;
-        console.log("Invoice paid!");
-        break;
+        return this.service.updateInvoicePaid(invoice);
       default:
         console.log(`Unhandled event type ${body.type}`);
     }

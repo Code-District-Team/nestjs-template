@@ -66,4 +66,10 @@ export class StripeController {
   verifyPayment(@Query() payment: VerifyPaymentDto) {
     return this.stripeService.verifyPayment(payment);
   }
+
+  @ApiOperation({ summary: "Create Subscription" })
+  @Get("create-subscription")
+  createSubscription(@CurrentUser() user: User) {
+    return this.stripeService.createSubscriptionSession("price_1OCJzJF8kfyxaVXEDmLDwDrX", user.tenant.stripeCustomerId);
+  }
 }

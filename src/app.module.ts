@@ -61,8 +61,7 @@ export class AppModule {
     consumer
       .apply(AuthTenantMiddleware)
       .forRoutes(UsersController, PermissionsController, TenantController, UserRolesController,
-        RolesController, RolePermissionsController, );
-        // StripeController);
+        RolesController, RolePermissionsController, StripeController);
     consumer.apply(StripeWebhookMiddleware).forRoutes(StripeWebhooksController);
   }
 }

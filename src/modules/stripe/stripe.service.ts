@@ -74,6 +74,38 @@ export class StripeService {
     });
   }
 
+  createSubscriptionSession(price: string, customer: string) {
+    return stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price,
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      customer,
+      success_url: 'https://your-website.com/success',
+      cancel_url: 'https://your-website.com/cancel',
+    });
+  }
+
+  // update subscription session
+  updateSubscriptionSession(sessionId: string, price: string) {
+    // return stripe.checkout.sessions.modify(sessionId, {
+    //   payment_method_types: ['card'],
+    //   line_items: [
+    //     {
+    //       price,
+    //       quantity: 1,
+    //     },
+    //   ],
+    //   mode: 'subscription',
+    //   success_url: 'https://your-website.com/success',
+    //   cancel_url: 'https://your-website.com/cancel',
+    // });
+  }
+
   async deduct(amount: number, customerId: string) {
     const payList = await this.getPaymentMethods(customerId);
     if (!payList.data.length)
