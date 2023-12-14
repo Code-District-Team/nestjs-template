@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { NextFunction, Response } from "express";
 import Stripe from "stripe";
+import * as process from "process";
 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
@@ -19,7 +20,7 @@ export class StripeWebhookMiddleware implements NestMiddleware {
     try {
       stripe.webhooks.constructEvent(req.rawBody, sig, this.endpointSecret);
     } catch (err) {
-      res.status(401).send(`Webhook Error: ${err.message}`);
+      res.status(401).send();//`Webhook Error: ${err.message}`);
       return;
     }
     next();

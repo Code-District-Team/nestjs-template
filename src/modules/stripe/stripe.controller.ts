@@ -72,4 +72,9 @@ export class StripeController {
   createSubscription(@CurrentUser() user: User) {
     return this.stripeService.createSubscriptionSession("price_1OCJzJF8kfyxaVXEDmLDwDrX", user.tenant.stripeCustomerId);
   }
+
+  @Get("update-sub")
+  updateSub(@CurrentUser() user: User) {
+    return this.stripeService.updateSubscription(user.tenant.stripeCustomerId);
+  }
 }

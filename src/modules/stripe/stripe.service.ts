@@ -3,12 +3,18 @@ import Stripe from 'stripe';
 import { Tenant } from "../tenant/entities/tenant.entity";
 import { convertDollarsToCents } from "../../generalUtils/helper";
 import { VerifyPaymentDto } from "./dto/verfiy-payment.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { StripePlan } from "../stripe-webhooks/entities/stripe-plan.entity";
+import { Repository } from "typeorm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
 
 @Injectable()
 export class StripeService {
+
+  constructor(@InjectRepository(StripePlan) private readonly stripePlanRepository: Repository<StripePlan>) {
+  }
 
   async createCustomer(name: string, email: string) {
     return stripe.customers.create({
@@ -91,19 +97,32 @@ export class StripeService {
   }
 
   // update subscription session
-  updateSubscriptionSession(sessionId: string, price: string) {
-    // return stripe.checkout.sessions.modify(sessionId, {
-    //   payment_method_types: ['card'],
-    //   line_items: [
-    //     {
-    //       price,
-    //       quantity: 1,
-    //     },
-    //   ],
-    //   mode: 'subscription',
-    //   success_url: 'https://your-website.com/success',
-    //   cancel_url: 'https://your-website.com/cancel',
-    // });
+  async updateSubscription(customer: string) {
+    const subscriptionItem = await this.stripePlanRepository.findOne({
+      where: {
+        customerId: customer,
+        object: "subscription_item"
+      }
+    });
+    // if (!subscriptionItem)
+    //   throw new HttpException("No subscription item found", 400);
+    // const subscriptionData = JSON.parse(subscriptionItem.data);
+    const portal = await stripe.billingPortal.sessions.create({
+      customer,
+      return_url: 'https://your-website.com/account',
+    });
+    // enable cancel subscription
+    await stripe.billingPortal.configurations.update(portal.configuration.toString(), {
+      features: {
+        subscription_cancel: {
+          enabled: true,
+        },
+        subscription_update: {
+          enabled: false,
+        },
+      },
+    });
+    return `${portal.url}`;///subscriptions/sub_1OFESnF8kfyxaVXE7zuYBvqP`;//${subscriptionData.subscription_item}`;
   }
 
   async deduct(amount: number, customerId: string) {
