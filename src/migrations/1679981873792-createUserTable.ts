@@ -98,7 +98,7 @@ export class createUserTable1679981873792 implements MigrationInterface {
             type: 'enum',
             enum: [StatusEnum.ACTIVE, StatusEnum.INACTIVE, StatusEnum.PENDING],
             enumName: 'StatusEnum',
-            default: `${StatusEnum.ACTIVE}`,
+            default: `'${StatusEnum.ACTIVE}'`,
           },
         ],
       }),
