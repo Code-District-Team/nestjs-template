@@ -5,5 +5,5 @@ RUN npm install
 RUN npm install webpack
 COPY . .
 RUN npm run build
-EXPOSE 3000
+EXPOSE 8080
 CMD ["node", "dist/src/main.js"]
