@@ -17,11 +17,11 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Roles } from 'src/decorators/roles.decorator';
+import { Roles, RolesPermissions } from 'src/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { CustomPipe } from 'src/pipe/customValidation.pipe';
-import { RoleEnum } from '../../common/enums/role.enum';
+import { PermissionEnum, RoleEnum } from '../../common/enums/role.enum';
 import { EditUserDto } from './dto/editUser.dto';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { EditUserRoleDto } from './dto/editUserRole.dto';
@@ -66,10 +66,13 @@ export class UsersController {
   }
 
   @Get('/me')
-  @Roles(RoleEnum.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(RoleEnum.USER)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
   getUser(@Req() request) {
-    return this.userService.getUser(request.user.id);
+    console.log("Req: ", request.body.user);
+    
+    return this.userService.getUser(request.body.user.id);
   }
 
   @Get('/presignedUrl')

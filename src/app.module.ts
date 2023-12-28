@@ -29,6 +29,9 @@ import { StripeController } from "./modules/stripe/stripe.controller";
 import { StripeWebhooksModule } from './modules/stripe-webhooks/stripe-webhooks.module';
 import { StripeWebhookMiddleware } from "./middlewares/stripe.webhook.middleware";
 import { StripeWebhooksController } from "./modules/stripe-webhooks/stripe-webhooks.controller";
+import { AuthMiddleware } from './middlewares/auth.middleware';
+import { BrandingModule } from './modules/branding/branding.module';
+import { BrandingController } from './modules/branding/branding.controller';
 
 @Module({
   imports: [
@@ -52,6 +55,7 @@ import { StripeWebhooksController } from "./modules/stripe-webhooks/stripe-webho
     TenantModule,
     StripeModule,
     StripeWebhooksModule,
+    BrandingModule
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -59,9 +63,10 @@ import { StripeWebhooksController } from "./modules/stripe-webhooks/stripe-webho
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(AuthTenantMiddleware)
+      .apply(AuthTenantMiddleware) // For multi-tanent
+      // .apply(AuthMiddleware)
       .forRoutes(UsersController, PermissionsController, TenantController, UserRolesController,
-        RolesController, RolePermissionsController, StripeController);
+        RolesController, RolePermissionsController, StripeController, BrandingController);
     consumer.apply(StripeWebhookMiddleware).forRoutes(StripeWebhooksController);
   }
 }

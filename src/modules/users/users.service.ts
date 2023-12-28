@@ -98,7 +98,20 @@ export class UsersService {
   }
 
   async getUser(userId) {
-    let user = await this.userRepository.findOneBy({ id: userId });
+    
+    let user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles', 'roles.permissions'],
+      select: {
+        roles: {
+          name: true,
+          permissions:{
+            name:true,
+          }
+        },
+      },
+    });
+
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
