@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, InternalServerErrorException, Param, ParseUUIDPipe, Patch, Post, Req } from '@nestjs/common';
 import { BrandingService } from "./branding.service";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Branding } from "./entities/branding.entity";
 import { CreateBrandingDto } from './dto/create-branding.dto';
 import { EditBrandingDto } from './dto/edit-branding.dto';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('Branding')
 @ApiBearerAuth('JWT-auth')
@@ -37,11 +39,15 @@ export class BrandingController {
   }
 
   @ApiOperation({ summary: "Edit branding" })
-  @ApiBody({type: EditBrandingDto})
+  @ApiBody({type: CreateBrandingDto})
   @ApiResponse({ status: 200, description: "Branded updated successfully" })
   @Patch("edit")
-  edit(@Body() body: EditBrandingDto){
-    return this.brandingService.edit(body);
+  async edit(@Body() body: CreateBrandingDto, @CurrentUser() user: User){
+    const res = await this.brandingService.edit(user.tenant.brandingId, body);
+    
+    if (res.affected >=1)
+      return {Result: "ok"}
+    else throw new InternalServerErrorException();
   }
 
 }

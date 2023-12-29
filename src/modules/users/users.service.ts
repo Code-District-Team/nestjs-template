@@ -24,6 +24,7 @@ import { Tenant } from "../tenant/entities/tenant.entity";
 import { GetUserRequestDto2 } from "./dto/getUsers.dto";
 import { FindManyOptions } from "typeorm/find-options/FindManyOptions";
 import { StripeService } from "../stripe/stripe.service";
+import { BrandingService } from '../branding/branding.service';
 
 const bucketName = process.env.AWS_BUCKET;
 
@@ -38,6 +39,7 @@ export class UsersService {
     private readonly roleRepository: Repository<Role>,
     private jwtService: JwtService,
     private mailService: MailService,
+    private brandingService: BrandingService,
     @InjectDataSource()
     private dataSource: DataSource,
     private stripeService: StripeService,
@@ -101,7 +103,7 @@ export class UsersService {
     
     let user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['roles', 'roles.permissions'],
+      relations: ['roles', 'roles.permissions', 'tenant.branding'],
       select: {
         roles: {
           name: true,
@@ -300,8 +302,14 @@ export class UsersService {
       })];
       const stripeCustomer = await this.stripeService.createCustomer(user.getFullName(), userDto.companyEmail);
       tenant.stripeCustomerId = stripeCustomer.id;
+      
+      //Saving default branding
+      const branding = await this.brandingService.createFirstTime(manager);
+      tenant.branding=branding;
+
       await manager.save(tenant);
       user.tenant = tenant;
+
       return manager.save(user);
     });
   }

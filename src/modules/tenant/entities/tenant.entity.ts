@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, } from 'typeorm';
 import { ApiProperty } from "@nestjs/swagger";
+import { Branding } from 'src/modules/branding/entities/branding.entity';
 
 @Entity({ name: 'tenants' })
 export class Tenant extends BaseEntity  {
@@ -26,6 +27,15 @@ export class Tenant extends BaseEntity  {
   @ApiProperty({ example: 'Company Phone', type: Boolean })
   @Column({ name: 'is_payment_method_attached', type: 'boolean', default: false, })
   isPaymentMethodAttached: boolean;
+
+  @ApiProperty({ type: String })
+  @Column({ name: 'branding_id', type: 'string', })
+  brandingId: string;
+
+  @ApiProperty({ type: Branding })
+  @OneToOne(() => Branding)
+  @JoinColumn({ name: 'branding_id' })
+  branding: Branding;
 
   @ApiProperty({ example: 'Company Phone', type: Date })
   @Column({ name: 'created_at', type: 'timestamp', default: 'now()', })

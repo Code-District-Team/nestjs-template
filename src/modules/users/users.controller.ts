@@ -69,10 +69,8 @@ export class UsersController {
   // @Roles(RoleEnum.USER)
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @RolesPermissions([RoleEnum.USER], [PermissionEnum.WRITE_PRODUCT])
-  getUser(@Req() request) {
-    console.log("Req: ", request.body.user);
-    
-    return this.userService.getUser(request.body.user.id);
+  getUser(@CurrentUser() user: User) {
+    return this.userService.getUser(user.id);
   }
 
   @Get('/presignedUrl')

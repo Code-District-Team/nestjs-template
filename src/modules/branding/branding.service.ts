@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Branding } from './entities/branding.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
@@ -25,7 +25,11 @@ export class BrandingService {
     return this.brandingRepository.save(this.brandingRepository.create(body))
   }
 
-  edit(body: EditBrandingDto){
-    return this.brandingRepository.update({id: body.id},body);
+  createFirstTime(manager: EntityManager){
+    return manager.save(this.brandingRepository.create({}));
+  }
+
+  edit(id: string, body: CreateBrandingDto){
+    return this.brandingRepository.update(id, body);
   }
 }

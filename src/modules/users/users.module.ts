@@ -10,12 +10,15 @@ import { User } from './entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { StripeModule } from "../stripe/stripe.module";
 import { Tenant } from "../tenant/entities/tenant.entity";
+import { Branding } from '../branding/entities/branding.entity';
+import { BrandingModule } from '../branding/branding.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Role, Tenant]),
     MailModule,
     StripeModule,
+    BrandingModule,
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: jwtConstants.time },
