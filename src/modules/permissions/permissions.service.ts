@@ -1,41 +1,43 @@
+// permissions.service.ts
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { DeleteResult, EntityManager, UpdateResult } from 'typeorm';
+import { PermissionRepository } from './permissions.repository';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { InjectRepository } from "@nestjs/typeorm";
-import { Permission } from "./entities/permission.entity";
-import { DeleteResult, Repository, UpdateResult } from "typeorm";
+import { Permission } from './entities/permission.entity';
 
 @Injectable()
 export class PermissionsService {
+    private permissionRepository: PermissionRepository;
 
-  constructor(@InjectRepository(Permission) private permissionRepository: Repository<Permission>) {
-  }
-
-  async create(createPermissionDto: CreatePermissionDto): Promise<Permission> {
-    try {
-      return await this.permissionRepository.save(
-        this.permissionRepository.create(createPermissionDto)
-      );
-    } catch (e) {
-      if (e.code === '23505') {
-        throw new BadRequestException('Permission already exists');
-      }
+    constructor(private manager: EntityManager) {
+        this.permissionRepository = new PermissionRepository(Permission, manager);
     }
-  }
 
-  findAll(): Promise<Permission[]> {
-    return this.permissionRepository.find();
-  }
+    async create(dto: CreatePermissionDto): Promise<Permission> {
+        try {
+            return await this.permissionRepository.createPermission(dto);
+        } catch (e) {
+            if (e.code === '23505') {
+                throw new BadRequestException('Permission already exists');
+            }
+        }
+    }
 
-  findOne(id: string): Promise<Permission> {
-    return this.permissionRepository.findOne({ where: { id } });
-  }
+    async findAll(): Promise<Permission[]> {
+        return this.permissionRepository.findAll();
+    }
 
-  update(id: string, updatePermissionDto: UpdatePermissionDto): Promise<UpdateResult> {
-    return this.permissionRepository.update(id, updatePermissionDto);
-  }
+    async findOne(id: string): Promise<Permission> {
+        return this.permissionRepository.findOneById(id);
+    }
 
-  remove(id: string): Promise<DeleteResult> {
-    return this.permissionRepository.delete(id);
-  }
+    async update(id: string, dto: UpdatePermissionDto): Promise<UpdateResult> {
+        return this.permissionRepository.updatePermission(id, dto);
+    }
+
+    async remove(id: string): Promise<DeleteResult> {
+        return this.permissionRepository.deletePermission(id);
+    }
+
 }

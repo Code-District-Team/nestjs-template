@@ -1,55 +1,90 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProductDto } from "./dto/create-product.dto";
-import { DeleteResult, EntityManager, UpdateResult } from "typeorm";
-import { ProductRepository } from './product.repository';
+import { InjectRepository } from "@nestjs/typeorm";
+import { DeleteResult, Repository, UpdateResult } from "typeorm";
 import { Product } from "./entities/product.entity";
 import { UpdateProductDto } from "./dto/update-product.dto";
-import jsPDF from 'jspdf';
+import * as csv from "csvtojson";
 import * as fs from "fs";
+import { jsPDF } from "jspdf";
 import * as html_to_pdf from "html-pdf-node";
-
-
 
 @Injectable()
 export class ProductService {
-  private productRepository: ProductRepository;
 
-  constructor(private manager: EntityManager) {
-    this.productRepository = new ProductRepository(Product, manager);
+  constructor(@InjectRepository(Product) private readonly productRepository: Repository<Product>) {
   }
 
   getById(id: string): Promise<Product> {
-    return this.productRepository.getProductById(id);
+    return this.productRepository.findOne({ where: { id } });
   }
 
   addProduct(createProductDto: CreateProductDto): Promise<Product> {
-    return this.productRepository.addProduct(createProductDto);
+    return this.productRepository.save(this.productRepository.create(createProductDto));
   }
 
   updateProduct(id: string, updateProductDto: UpdateProductDto): Promise<UpdateResult> {
-    return this.productRepository.updateProduct(id, updateProductDto);
+    return this.productRepository.update({ id }, updateProductDto);
   }
 
   deleteProduct(id: string): Promise<DeleteResult> {
-    return this.productRepository.deleteProduct(id);
+    return this.productRepository.delete({ id });
   }
 
-  bulkImportProducts(csvFile: Express.Multer.File): Promise<Product[]> {
-    return this.productRepository.bulkImportProducts(csvFile);
+  async bulkImportProducts(csvFile: Express.Multer.File) {
+    const path = csvFile.path;
+    const products: Product[] = [];
+    const csvData = await csv().fromFile(path);
+    const errors = []; // row, columns, error
+    csvData.forEach((row, index) => {
+      const error: { row: number, errors: string[] } = {
+        row: index + 1,
+        errors: [],
+      };
+      const { name, price, quantity } = row;
+      if (!name && !price && !quantity)
+        error.errors.push("name, price and quantity are required");
+      if (isNaN(+price))
+        error.errors.push("price should be a number");
+      if (+price > 9999999999.99)
+        error.errors.push("price should be less than 9999999999.99");
+      if (isNaN(+quantity) || +quantity % 1 !== 0)
+        error.errors.push("quantity should be a number");
+      if (+quantity > 2147483648)
+        error.errors.push("quantity should be less than 2147483648");
+      if (name.length > 255)
+        error.errors.push("name should be less than 255 characters");
+      if (error.errors.length) {
+        errors.push(error);
+        return;
+      }
+      const newProduct = new Product();
+      newProduct.name = name;
+      newProduct.price = +price;
+      newProduct.quantity = +quantity;
+      products.push(newProduct);
+    });
+    fs.unlinkSync(path);
+    if (errors.length) {
+      throw new BadRequestException({ errors });
+    }
+    return this.productRepository.save(products);
   }
 
-  bulkExportProducts(ids: string[]): Promise<Product[]> {
-    return this.productRepository.bulkExportProducts(ids);
+  async bulkExportProducts(ids: string[]) {
+    return this.productRepository.createQueryBuilder("product")
+      .where("product.id IN (:...ids)", { ids })
+      .stream();
   }
 
-  getAllProductsWithoutPagination(): Promise<Product[]> {
-    return this.productRepository.getAllProductsWithoutPagination();
+  getAllProductsWithoutPagination() {
+    return this.productRepository.find({take: 100});
   }
 
   async exportPdf() {
     const doc = new jsPDF();
     // get all products and write them in pdf (name, price, quantity)
-    const products = await this.productRepository.findProductsForPdfExport(10);
+    const products = await this.productRepository.find({ take: 10 });
     const productsPerPage = 20;
     for (let i = 0; i < products.length; i += productsPerPage) {
       const productsPage = products.slice(i, i + productsPerPage);
@@ -91,7 +126,7 @@ export class ProductService {
   async exportPdfHtml() {
     const options = { format: 'A4' };
     let file = { content: "" };
-    const products = await this.productRepository.findProductsForPdfExport(100);
+    const products = await this.productRepository.find({ take: 100 });
     file.content = "<html><body><table><thead><tr><th>#</th><th>Name</th><th>Price</th><th>Quantity</th><th>Created At</th></tr></thead><tbody>";
     products.forEach((product, index) => {
       file.content += `<tr><td>${index + 1}</td><td>${product.name}</td><td>${product.price}</td><td>${product.quantity}</td><td>${product.createdAt.toLocaleDateString()}</td></tr>`;

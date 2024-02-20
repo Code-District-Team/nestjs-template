@@ -1,14 +1,16 @@
-import { Module } from '@nestjs/common';
+// branding.module.ts
+
+import { Module, Global } from '@nestjs/common';
 import { BrandingService } from './branding.service';
 import { BrandingController } from './branding.controller';
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Branding } from "./entities/branding.entity";
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Branding } from './entities/branding.entity';
 
+@Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([ Branding ])],
+  imports: [TypeOrmModule.forFeature([Branding])],
   providers: [BrandingService],
   controllers: [BrandingController],
   exports: [BrandingService]
 })
-export class BrandingModule {
-}
+export class BrandingModule {}

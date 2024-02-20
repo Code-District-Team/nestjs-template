@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, } from 'typeorm';
 import { ApiProperty } from "@nestjs/swagger";
-import { Branding } from 'src/modules/branding/entities/branding.entity';
+// import { Branding } from 'src/modules/branding/entities/branding.entity';
+import { Branding } from '../../branding/entities/branding.entity';
 
 @Entity({ name: 'tenants' })
 export class Tenant extends BaseEntity  {
