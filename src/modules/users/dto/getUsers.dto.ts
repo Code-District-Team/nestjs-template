@@ -18,6 +18,9 @@ export class GetUserRequestDto {
 
   @IsNumber()
   recordsPerPage: number;
+
+  @IsString()
+  status: string;
 }
 
 export class GetUserRequestDto2 extends PartialType(GetUserRequestDto) {}

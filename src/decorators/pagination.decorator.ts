@@ -81,6 +81,15 @@ function composeQuery(builder: WhereExpressionBuilder, index: number, field: str
     builder.orWhere(expression, params);
 }
 
+/**
+ * A TypeScript decorator for adding pagination and filtering capabilities to a repository method. 
+ * It takes a repository and optional relation filters as arguments. 
+ * The decorator modifies the target method to handle query parameters for pagination, sorting, 
+ * and filtering, including conditions like joins and AG-Grid specific filters. 
+ * It initializes the data source, constructs and executes a dynamic query, 
+ * and returns the paginated result set along with the total record count.
+ */
+
 export function PaginateEntity(repo: RepoSelect, relations: RelationFilter[] = []) {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;

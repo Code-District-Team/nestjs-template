@@ -1,35 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, Repository } from 'typeorm';
-import { Branding } from './entities/branding.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
+import { BrandingRepository } from './branding.repository';
 import { CreateBrandingDto } from './dto/create-branding.dto';
-import { EditBrandingDto } from './dto/edit-branding.dto';
+import { EntityManager } from 'typeorm';
+import { Branding } from './entities/branding.entity';
+
 
 @Injectable()
 export class BrandingService {
-  constructor(
-    @InjectRepository(Branding)
-    private brandingRepository: Repository<Branding>,
-  ) {}
+  private brandingRepository: BrandingRepository;
 
-  findAll() {
-    return this.brandingRepository.find();
+  constructor(private manager: EntityManager) {
+    this.brandingRepository = new BrandingRepository(Branding, manager);
+  }
+  async findAll(){
+    return await this.brandingRepository.findAll();
   }
 
   findOne(id: string) {
-    return this.brandingRepository.findOne({ where: { id } });
+    return this.brandingRepository.findOneById(id);
   }
 
   create(body: CreateBrandingDto){
-    return this.brandingRepository.save(this.brandingRepository.create(body))
+    return this.brandingRepository.createBranding(body);
   }
 
   createFirstTime(manager: EntityManager){
-    return manager.save(this.brandingRepository.create({}));
+    console.log('manager' , manager);
+    return this.brandingRepository.createFirstTime(manager);
   }
 
   edit(id: string, body: CreateBrandingDto){
-    return this.brandingRepository.update(id, body);
+    return this.brandingRepository.editBranding(id, body);
   }
 }

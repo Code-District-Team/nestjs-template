@@ -100,7 +100,7 @@ export class UsersService {
   }
 
   async getUser(userId) {
-    
+
     let user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['roles', 'roles.permissions', 'tenant.branding'],
@@ -165,7 +165,7 @@ export class UsersService {
   }
 
   async getAllUsers(filters: GetUserRequestDto2, user: User) {
-    const { email, firstName, lastName, pageNumber, recordsPerPage } = filters;
+    const { email, firstName, lastName, pageNumber, recordsPerPage, status } = filters;
     let skip = +(pageNumber - 1) * +recordsPerPage;
     const where = { tenantId: user.tenant.id, email: Not(user.email) };
     if (firstName)
@@ -174,6 +174,8 @@ export class UsersService {
       where['lastName'] = ILike(`%${lastName}%`);
     if (email)
       where['email'] = ILike(`%${email}%`);
+    if (status)
+      where['status'] = status.toUpperCase();
     console.log({ where });
     const options: FindManyOptions<User> = {
       order: {
@@ -302,7 +304,7 @@ export class UsersService {
       })];
       const stripeCustomer = await this.stripeService.createCustomer(user.getFullName(), userDto.companyEmail);
       tenant.stripeCustomerId = stripeCustomer.id;
-      
+
       //Saving default branding
       const branding = await this.brandingService.createFirstTime(manager);
       tenant.branding=branding;

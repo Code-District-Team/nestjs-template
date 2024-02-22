@@ -7,14 +7,16 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 @ApiBearerAuth('JWT-auth')
 @Controller('role-permissions')
 export class RolePermissionsController {
-  constructor(private readonly rolePermissionsService: RolePermissionsService) {
-  }
+  constructor(private readonly rolePermissionsService: RolePermissionsService) { }
 
   @Post()
   async create(@Body() createRolePermissionDto: CreateRolePermissionDto) {
-    const results = await this.rolePermissionsService.create(createRolePermissionDto);
-    if (!results) throw new BadRequestException('Role or permission not found');
-    return results;
+    try {
+      const results = await this.rolePermissionsService.create(createRolePermissionDto.roleId, createRolePermissionDto.permissionIds);
+      return results;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Get()
